@@ -60,13 +60,17 @@ class Pimcore extends Abstract {
 
         let backendPath
 
+        const pimcoreClassFinder = function (className) {
+          return availablePimcoreClassess.find((itm) => { return itm.name === className })
+        }
+
         config.elasticsearch.host = this.answers.elasticsearchUrl
         config.elasticsearch.indexName = this.answers.elasticsearchIndexName
         config.pimcore.url = this.answers.pimcoreUrl
         config.pimcore.apiKey = this.answers.apiKey
-        config.pimcore.productClass = this.answers.productClass
-        config.pimcore.categoryClass = this.answers.categoryClass
-
+        config.pimcore.productClass = pimcoreClassFinder(this.answers.productClass)
+        config.pimcore.categoryClass = pimcoreClassFinder(this.answers.categoryClass)
+        
         jsonFile.writeFileSync(TARGET_CONFIG_FILE, config, {spaces: 2})
       } catch (e) {
         reject('Can\'t create storefront config.')
@@ -261,7 +265,7 @@ let questions = [
           if (resp.body.success == false) {
             done (resp.body.msg)
           } else {
-            availablePimcoreClassess = resp.body.data.map((itm) => { return itm.name })
+            availablePimcoreClassess = resp.body.data
             done(null, true)
           }
         })
@@ -298,7 +302,7 @@ let questions = [
   },
   {
     type: 'list',
-    choices: function(answers) { return availablePimcoreClassess },
+    choices: function(answers) { return availablePimcoreClassess.map((itm) => { return itm.name }) },
     
     name: 'productClass',
     message: 'Please select valid Pimcore class for Product entities',
@@ -312,7 +316,7 @@ let questions = [
   },
   {
     type: 'list',
-    choices: function(answers) { return availablePimcoreClassess },
+    choices: function(answers) { return availablePimcoreClassess.map((itm) => { return itm.name }) },
     
     name: 'categoryClass',
     message: 'Please select valid Pimcore class for Category entities',

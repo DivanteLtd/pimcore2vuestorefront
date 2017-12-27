@@ -6,7 +6,13 @@
     "pimcore": {
         "url": "http://localhost/",
         "apiKey": "<ENTER YOUR API KEY HERE>",
-        "productClass": "Product",
-        "categoryClass": "ProductCategory"
+        "productClass": {
+            "id": 12,
+            "name": "Product"
+          },
+          "categoryClass": {
+            "id": 14,
+            "name": "ProductCategory"
+          }
     }
 }
