@@ -1,0 +1,12 @@
+{
+    "elasticsearch": {
+        "host": "",
+        "indexName": "vue_storefront_catalog"
+    },
+    "pimcore": {
+        "url": "http://localhost/",
+        "apiKey": "<ENTER YOUR API KEY HERE>",
+        "productClass": "Product",
+        "categoryClass": "ProductCategory"
+    }
+}
