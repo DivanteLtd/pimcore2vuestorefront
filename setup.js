@@ -301,7 +301,7 @@ let questions = [
     choices: function(answers) { return availablePimcoreClassess },
     
     name: 'productClass',
-    message: 'Please provide valid Pimcore class for Product entities',
+    message: 'Please select valid Pimcore class for Product entities',
     default: 'Product',
     when: function (answers) {
       return true
@@ -315,7 +315,7 @@ let questions = [
     choices: function(answers) { return availablePimcoreClassess },
     
     name: 'categoryClass',
-    message: 'Please provide valid Pimcore class for Category entities',
+    message: 'Please select valid Pimcore class for Category entities',
     default: 'ProductCategory',
     when: function (answers) {
       return true
