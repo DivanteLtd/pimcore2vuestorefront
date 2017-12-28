@@ -68,6 +68,7 @@ class Pimcore extends Abstract {
         config.elasticsearch.indexName = this.answers.elasticsearchIndexName
         config.pimcore.url = this.answers.pimcoreUrl
         config.pimcore.apiKey = this.answers.apiKey
+        config.pimcore.locale = this.answers.locale
         config.pimcore.productClass = pimcoreClassFinder(this.answers.productClass)
         config.pimcore.categoryClass = pimcoreClassFinder(this.answers.categoryClass)
         
@@ -300,6 +301,19 @@ let questions = [
       return true
     }
   },
+  {
+    type: 'choice',
+    name: 'locale',
+    message: 'Which language version should be synchronized',
+    default: 'en_GB',
+    choices: ['en_GB', 'de_AT', 'de_DE', 'pl_PL', 'fr_FR', 'en_US'],
+    when: function (answers) {
+        return true
+    },
+    validate: function (value) {
+      return true
+    }
+  },  
   {
     type: 'list',
     choices: function(answers) { return availablePimcoreClassess.map((itm) => { return itm.name }) },

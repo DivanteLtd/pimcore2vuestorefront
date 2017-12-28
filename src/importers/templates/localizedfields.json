@@ -1,0 +1,180 @@
+{ type: 'localizedfields',
+    value: [
+        { type: 'input',
+         value: 'Classic FG Jr',
+         name: 'name',
+         language: 'en_GB'
+        },
+        { type: 'input',
+         value: 'Football Shoes Classic FG Jr',
+         name: 'seoname',
+         language: 'en_GB'
+        },
+        { type: 'input',
+         value: 'Black / White',
+         name: 'colorName',
+         language: 'en_GB'
+        },
+        { type: 'numeric',
+         value: '33.7000',
+         name: 'price',
+         language: 'en_GB'
+        },
+        { type: 'numeric',
+         value: null,
+         name: 'priceOld',
+         language: 'en_GB'
+        },
+        { type: 'checkbox',
+         value: false,
+         name: 'fromPrice',
+         language: 'en_GB'
+        },
+        { type: 'wysiwyg',
+         value: '<ul>\n\t<li>\n\t\tFG outsole delivers grip and comfort on firm natural surfaces</li>\n</ul>\n',
+         name: 'description',
+         language: 'en_GB'
+        },
+        { type: 'wysiwyg',
+         value: null,
+         name: 'material',
+         language: 'en_GB'
+        },
+        { type: 'multihref',
+         value: [],
+         name: 'downloads',
+         language: 'en_GB'
+        },
+        { type: 'multihref',
+         value: [],
+         name: 'videos',
+         language: 'en_GB'
+        },
+        { type: 'href', value: null, name: 'rotation', language: 'en_GB'
+        },
+        { type: 'input',
+         value: null,
+         name: 'youtubeVideo',
+         language: 'en_GB'
+        },
+        { type: 'calculatedValue',
+         value: null,
+         name: 'textsAvailable',
+         language: 'en_GB'
+        },
+        { type: 'input',
+         value: 'Classic FG Jr',
+         name: 'name',
+         language: 'de_AT'
+        },
+        { type: 'input',
+         value: 'Football Shoes Classic FG Jr',
+         name: 'seoname',
+         language: 'de_AT'
+        },
+        { type: 'input',
+         value: 'Black / White',
+         name: 'colorName',
+         language: 'de_AT'
+        },
+        { type: 'numeric', value: null, name: 'price', language: 'de_AT'
+        },
+        { type: 'numeric',
+         value: null,
+         name: 'priceOld',
+         language: 'de_AT'
+        },
+        { type: 'checkbox',
+         value: false,
+         name: 'fromPrice',
+         language: 'de_AT'
+        },
+        { type: 'wysiwyg',
+         value: '<ul>\n\t<li>\n\t\tFG outsole delivers grip and comfort on firm natural surfaces</li>\n</ul>\n',
+         name: 'description',
+         language: 'de_AT'
+        },
+        { type: 'wysiwyg',
+         value: null,
+         name: 'material',
+         language: 'de_AT'
+        },
+        { type: 'multihref',
+         value: [],
+         name: 'downloads',
+         language: 'de_AT'
+        },
+        { type: 'multihref',
+         value: [],
+         name: 'videos',
+         language: 'de_AT'
+        },
+        { type: 'href', value: null, name: 'rotation', language: 'de_AT'
+        },
+        { type: 'input',
+         value: null,
+         name: 'youtubeVideo',
+         language: 'de_AT'
+        },
+        { type: 'calculatedValue',
+         value: null,
+         name: 'textsAvailable',
+         language: 'de_AT'
+        },
+        { type: 'input', value: null, name: 'name', language: 'fr_FR'
+        },
+        { type: 'input', value: null, name: 'seoname', language: 'fr_FR'
+        },
+        { type: 'input',
+         value: null,
+         name: 'colorName',
+         language: 'fr_FR'
+        },
+        { type: 'numeric', value: null, name: 'price', language: 'fr_FR'
+        },
+        { type: 'numeric',
+         value: null,
+         name: 'priceOld',
+         language: 'fr_FR'
+        },
+        { type: 'checkbox',
+         value: false,
+         name: 'fromPrice',
+         language: 'fr_FR'
+        },
+        { type: 'wysiwyg',
+         value: null,
+         name: 'description',
+         language: 'fr_FR'
+        },
+        { type: 'wysiwyg',
+         value: null,
+         name: 'material',
+         language: 'fr_FR'
+        },
+        { type: 'multihref',
+         value: [],
+         name: 'downloads',
+         language: 'fr_FR'
+        },
+        { type: 'multihref',
+         value: [],
+         name: 'videos',
+         language: 'fr_FR'
+        },
+        { type: 'href', value: null, name: 'rotation', language: 'fr_FR'
+        },
+        { type: 'input',
+         value: null,
+         name: 'youtubeVideo',
+         language: 'fr_FR'
+        },
+        { type: 'calculatedValue',
+         value: null,
+         name: 'textsAvailable',
+         language: 'fr_FR'
+        }
+    ],
+    name: 'localizedfields',
+    language: null
+}

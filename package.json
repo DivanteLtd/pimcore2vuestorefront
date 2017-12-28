@@ -6,6 +6,8 @@
   "dependencies": {
     "babel-cli": "^6.26.0",
     "command-exists": "^1.2.2",
+    "command-router": "^1.0.1",
+    "elasticsearch": "^14.0.0",
     "empty-dir": "^0.2.1",
     "fs-exists-sync": "^0.1.0",
     "inquirer": "^4.0.1",

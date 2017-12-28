@@ -5,10 +5,16 @@
     },
     "pimcore": {
         "url": "http://localhost/",
+        "locale": "en_GB",
         "apiKey": "<ENTER YOUR API KEY HERE>",
         "productClass": {
             "id": 12,
-            "name": "Product"
+            "name": "Product",
+            "map": {
+                "price": "price",
+                "name": "seoname",
+                "description": "description"
+            }
           },
           "categoryClass": {
             "id": 14,

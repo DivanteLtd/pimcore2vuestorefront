@@ -1,0 +1,423 @@
+{
+    "id": 2029,
+    "sku": "WSH11",
+    "name": "Ina Compression Short",
+    "price": 0,
+    "status": 1,
+    "visibility": 4,
+    "type_id": "configurable",
+    "created_at": "2017-11-06 12:17:29",
+    "updated_at": "2017-11-06 12:17:29",
+    "product_links": [],
+    "tier_prices": [],
+    "custom_attributes": null,
+    "description": "<p>One of Luma's most popular items, the Ina Compression Short has you covered with exceptional support and comfort, whether you're running the trail, riding a bike or ripping out reps. The ventilating fabric offers cool relief and prevents irritating chafing.</p>\n<p>&bull; Royal blue bike shorts.<br />&bull; Compression fit. <br />&bull; Moisture-wicking. <br />&bull; Anti-microbial. <br />&bull; Machine wash/dry.</p>",
+    "image": "/w/s/wsh11-blue_main.jpg",
+    "small_image": "/w/s/wsh11-blue_main.jpg",
+    "thumbnail": "/w/s/wsh11-blue_main.jpg",
+    "category_ids": [
+        "28",
+        "34",
+        "2"
+    ],
+    "url_key": "ina-compression-short",
+    "tax_class_id": 2,
+    "configurable_options": [
+        {
+            "attribute_id": "93",
+            "values": [
+                {
+                    "value_index": 50
+                },
+                {
+                    "value_index": 56
+                },
+                {
+                    "value_index": 58
+                }
+            ],
+            "product_id": 2029,
+            "id": 293,
+            "label": "Color",
+            "position": 1
+        },
+        {
+            "attribute_id": "142",
+            "values": [
+                {
+                    "value_index": 172
+                },
+                {
+                    "value_index": 173
+                }
+            ],
+            "product_id": 2029,
+            "id": 292,
+            "label": "Size",
+            "position": 0
+        }
+    ],
+    "stock": {
+        "min_sale_qty": 1,
+        "is_in_stock": true,
+        "product_id": 2029,
+        "item_id": 2029,
+        "qty": 1
+    },
+    "configurable_children": [
+        {
+            "price": 49,
+            "name": "Ina Compression Short-28-Blue",
+            "sku": "WSH11-28-Blue",
+            "custom_attributes": [
+                {
+                    "value": "0",
+                    "attribute_code": "required_options"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "has_options"
+                },
+                {
+                    "value": "2",
+                    "attribute_code": "tax_class_id"
+                },
+                {
+                    "value": [
+                        "28",
+                        "34",
+                        "2"
+                    ],
+                    "attribute_code": "category_ids"
+                },
+                {
+                    "value": "172",
+                    "attribute_code": "size"
+                },
+                {
+                    "value": "50",
+                    "attribute_code": "color"
+                },
+                {
+                    "value": "/w/s/wsh11-blue_main.jpg",
+                    "attribute_code": "image"
+                },
+                {
+                    "value": "/w/s/wsh11-blue_main.jpg",
+                    "attribute_code": "small_image"
+                },
+                {
+                    "value": "/w/s/wsh11-blue_main.jpg",
+                    "attribute_code": "thumbnail"
+                },
+                {
+                    "value": "ina-compression-short-28-blue",
+                    "attribute_code": "url_key"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "msrp_display_actual_price_type"
+                }
+            ],
+            "sgn": "TjofcQd1hEKFgefIFfU6r4ZDTpZgUzQhmRC_vxMYSZU"
+        },
+        {
+            "price": 49,
+            "name": "Ina Compression Short-28-Orange",
+            "sku": "WSH11-28-Orange",
+            "custom_attributes": [
+                {
+                    "value": "0",
+                    "attribute_code": "required_options"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "has_options"
+                },
+                {
+                    "value": "2",
+                    "attribute_code": "tax_class_id"
+                },
+                {
+                    "value": [
+                        "28",
+                        "34",
+                        "2"
+                    ],
+                    "attribute_code": "category_ids"
+                },
+                {
+                    "value": "172",
+                    "attribute_code": "size"
+                },
+                {
+                    "value": "56",
+                    "attribute_code": "color"
+                },
+                {
+                    "value": "/w/s/wsh11-orange_main.jpg",
+                    "attribute_code": "image"
+                },
+                {
+                    "value": "/w/s/wsh11-orange_main.jpg",
+                    "attribute_code": "small_image"
+                },
+                {
+                    "value": "/w/s/wsh11-orange_main.jpg",
+                    "attribute_code": "thumbnail"
+                },
+                {
+                    "value": "ina-compression-short-28-orange",
+                    "attribute_code": "url_key"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "msrp_display_actual_price_type"
+                }
+            ],
+            "sgn": "Ml9tc5g6ISnqIx7Due9HiCWvPBgwQ7YPJDP3XfNVbEM"
+        },
+        {
+            "price": 49,
+            "name": "Ina Compression Short-28-Red",
+            "sku": "WSH11-28-Red",
+            "custom_attributes": [
+                {
+                    "value": "0",
+                    "attribute_code": "required_options"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "has_options"
+                },
+                {
+                    "value": "2",
+                    "attribute_code": "tax_class_id"
+                },
+                {
+                    "value": [
+                        "28",
+                        "34",
+                        "2"
+                    ],
+                    "attribute_code": "category_ids"
+                },
+                {
+                    "value": "172",
+                    "attribute_code": "size"
+                },
+                {
+                    "value": "58",
+                    "attribute_code": "color"
+                },
+                {
+                    "value": "/w/s/wsh11-red_main.jpg",
+                    "attribute_code": "image"
+                },
+                {
+                    "value": "/w/s/wsh11-red_main.jpg",
+                    "attribute_code": "small_image"
+                },
+                {
+                    "value": "/w/s/wsh11-red_main.jpg",
+                    "attribute_code": "thumbnail"
+                },
+                {
+                    "value": "ina-compression-short-28-red",
+                    "attribute_code": "url_key"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "msrp_display_actual_price_type"
+                }
+            ],
+            "sgn": "8rH2F9C4P7wAolgE_N8ha4Kkc3k9SQiZN93B5Oj3rNM"
+        },
+        {
+            "price": 49,
+            "name": "Ina Compression Short-29-Blue",
+            "sku": "WSH11-29-Blue",
+            "custom_attributes": [
+                {
+                    "value": "0",
+                    "attribute_code": "required_options"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "has_options"
+                },
+                {
+                    "value": "2",
+                    "attribute_code": "tax_class_id"
+                },
+                {
+                    "value": [
+                        "28",
+                        "34",
+                        "2"
+                    ],
+                    "attribute_code": "category_ids"
+                },
+                {
+                    "value": "173",
+                    "attribute_code": "size"
+                },
+                {
+                    "value": "50",
+                    "attribute_code": "color"
+                },
+                {
+                    "value": "/w/s/wsh11-blue_main.jpg",
+                    "attribute_code": "image"
+                },
+                {
+                    "value": "/w/s/wsh11-blue_main.jpg",
+                    "attribute_code": "small_image"
+                },
+                {
+                    "value": "/w/s/wsh11-blue_main.jpg",
+                    "attribute_code": "thumbnail"
+                },
+                {
+                    "value": "ina-compression-short-29-blue",
+                    "attribute_code": "url_key"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "msrp_display_actual_price_type"
+                }
+            ],
+            "sgn": "zTgsMQGBOwkjwNxx7TIfl91tI1YsqVfGEcjKGRlyhas"
+        },
+        {
+            "price": 49,
+            "name": "Ina Compression Short-29-Orange",
+            "sku": "WSH11-29-Orange",
+            "custom_attributes": [
+                {
+                    "value": "0",
+                    "attribute_code": "required_options"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "has_options"
+                },
+                {
+                    "value": "2",
+                    "attribute_code": "tax_class_id"
+                },
+                {
+                    "value": [
+                        "28",
+                        "34",
+                        "2"
+                    ],
+                    "attribute_code": "category_ids"
+                },
+                {
+                    "value": "173",
+                    "attribute_code": "size"
+                },
+                {
+                    "value": "56",
+                    "attribute_code": "color"
+                },
+                {
+                    "value": "/w/s/wsh11-orange_main.jpg",
+                    "attribute_code": "image"
+                },
+                {
+                    "value": "/w/s/wsh11-orange_main.jpg",
+                    "attribute_code": "small_image"
+                },
+                {
+                    "value": "/w/s/wsh11-orange_main.jpg",
+                    "attribute_code": "thumbnail"
+                },
+                {
+                    "value": "ina-compression-short-29-orange",
+                    "attribute_code": "url_key"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "msrp_display_actual_price_type"
+                }
+            ],
+            "sgn": "5PFlP6v1jzOtT39LiVgMO1MAONcS-3eCG8yjSBdw38A"
+        },
+        {
+            "price": 49,
+            "name": "Ina Compression Short-29-Red",
+            "sku": "WSH11-29-Red",
+            "custom_attributes": [
+                {
+                    "value": "0",
+                    "attribute_code": "required_options"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "has_options"
+                },
+                {
+                    "value": "2",
+                    "attribute_code": "tax_class_id"
+                },
+                {
+                    "value": [
+                        "28",
+                        "34",
+                        "2"
+                    ],
+                    "attribute_code": "category_ids"
+                },
+                {
+                    "value": "173",
+                    "attribute_code": "size"
+                },
+                {
+                    "value": "58",
+                    "attribute_code": "color"
+                },
+                {
+                    "value": "/w/s/wsh11-red_main.jpg",
+                    "attribute_code": "image"
+                },
+                {
+                    "value": "/w/s/wsh11-red_main.jpg",
+                    "attribute_code": "small_image"
+                },
+                {
+                    "value": "/w/s/wsh11-red_main.jpg",
+                    "attribute_code": "thumbnail"
+                },
+                {
+                    "value": "ina-compression-short-29-red",
+                    "attribute_code": "url_key"
+                },
+                {
+                    "value": "0",
+                    "attribute_code": "msrp_display_actual_price_type"
+                }
+            ],
+            "sgn": "HunsCjEGHYLVogZR81EAYNoVRm2qBXQGcxPDeVGSvzg"
+        }
+    ],
+    "category": [
+        {
+            "category_id": 2,
+            "name": "Default Category"
+        },
+        {
+            "category_id": 22,
+            "name": "Bottoms"
+        },
+        {
+            "category_id": 28,
+            "name": "Shorts"
+        },
+        {
+            "category_id": 34,
+            "name": "Erin Recommends"
+        }
+    ]
+}

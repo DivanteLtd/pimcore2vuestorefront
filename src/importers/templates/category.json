@@ -1,0 +1,53 @@
+{
+    "id": 29,
+    "parent_id": 2,
+    "name": "Promotions",
+    "is_active": false,
+    "position": 6,
+    "level": 2,
+    "product_count": 0,
+    "children_data": [
+        {
+            "is_active": true,
+            "level": 3,
+            "parent_id": 29,
+            "product_count": 224,
+            "name": "Women Sale",
+            "id": 30,
+            "position": 1,
+            "children_data": []
+        },
+        {
+            "is_active": true,
+            "level": 3,
+            "parent_id": 29,
+            "product_count": 39,
+            "name": "Men Sale",
+            "id": 31,
+            "position": 2,
+            "children_data": []
+        },
+        {
+            "is_active": true,
+            "level": 3,
+            "parent_id": 29,
+            "product_count": 247,
+            "name": "Pants",
+            "id": 32,
+            "position": 3,
+            "children_data": []
+        },
+        {
+            "is_active": true,
+            "level": 3,
+            "parent_id": 29,
+            "product_count": 192,
+            "name": "Tees",
+            "id": 33,
+            "position": 4,
+            "children_data": []
+        }
+    ],
+    "tsk": 1512134691851,
+    "sgn": "xVeQOEymTdoZ_AgxwzyfE4Ka-mVW6ymwpvu6Y3voh68"
+}
