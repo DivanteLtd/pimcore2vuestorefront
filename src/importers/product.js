@@ -23,8 +23,10 @@ module.exports = class {
             let materialComposition = elements.find((elem) => elem.name === 'materialComposition')
             let color = elements.find((elem) => elem.name === 'color')
             let gender = elements.find((elem) => elem.name === 'gender')
+            let localizedFields = elements.find((itm)=> { return itm.name === 'localizedfields'})
 
-            console.log(elements    )
+            // TODO: map product attributes regarding the templates/attributes.json configuration
+            console.log(pimcoreObjectData)
             let subPromises = []
 
             if(images) {
