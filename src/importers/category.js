@@ -1,5 +1,5 @@
 module.exports = class {
-    construct(config, api, db) {
+    constructor(config, api, db) {
         this.config = config
         this.db = db
         this.api = api
@@ -8,9 +8,9 @@ module.exports = class {
     /**
      * @returns Promise
      */
-    single(objectData, result) {
+    single(pimcoreObjectData, convertedObject, childObjects) {
         return new Promise((resolve, reject) => {
-            resolve(result)
+            resolve({ src: pimcoreObjectData, dst: convertedObject })
         })
     }
 }

@@ -39,13 +39,19 @@ function importListOf(entityType, importer, config, api) {
     console.log('Getting objects list for', query)
     api.get('object-list').query(query).end((resp) => {
         for(let objDescriptor of resp.body.data) {
-            queue.push(importer.single(objDescriptor)) // TODO: queue
+            queue.push(importer.single(objDescriptor)) // TODO: queue;
         }
         Promise.all(queue).then((results) => {
 //            console.log(results)
         })
     })
 }
+
+cli.command('testproduct',  () => {
+   let importer = new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
+   importer.single({ id: 1237 }).then((results) => {
+   })
+});
 
 
 cli.command('products',  () => {
