@@ -29,6 +29,22 @@ module.exports = class {
             console.log(pimcoreObjectData)
             let subPromises = []
 
+
+            let api = this.api
+            subPromises.push(new Promise((subresolve, subreject) => {
+                    api.get('object-list').query({
+                        condition: 'o_parentId=\'' + convertedObject.id + '\'', // get variants
+                    }).end((resp) => {
+                        
+                        api.get('object/id/' + resp.body.data[0].id).end((resp) => {
+                            console.log('variant 0', resp.body.data)
+                            subresolve()
+                        })
+                    })
+                }
+            ))
+
+
             if(images) {
                 images.value.map((imgDescr) => {
                     let imgId = imgDescr.value[0].value

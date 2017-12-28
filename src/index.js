@@ -50,19 +50,6 @@ function importListOf(entityType, importer, config, api) {
 cli.command('attributes',  () => { // Simply load attributes description from templates/attributes.json instead of dynamic mapping from pimcore
 });
 
-cli.command('testvariants', () => {
-    api.get('object-list').query({
-        objectClass: 'ProductVariant',
-        limit: 1
-    }).end((resp) => {
-        console.log( resp.body.data[0].id)
-        api.get('object/id/' + resp.body.data[0].id).end((resp)=> {
-
-            console.log(resp.body)
-        })
-    })
-})
-
 cli.command('testproduct',  () => {
    let importer = new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
    importer.single({ id: 1237 }).then((results) => {
