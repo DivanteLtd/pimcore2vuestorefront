@@ -33,9 +33,7 @@
     "default_frontend_label": "Weight",
     "frontend_labels": null,
     "backend_type": "decimal",
-    "backend_model": "Magento\Catalog\Model\Product\Attribute\Backend\Weight",
     "is_unique": "0",
     "validation_rules": [],
-    "id": 82,
-    "tsk": 1512134647691
+    "id": 82
 }

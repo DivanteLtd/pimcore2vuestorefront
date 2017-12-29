@@ -6,6 +6,7 @@ const ProductImpoter = require('./importers/product')
 const BasicImporter = require('./importers/basic')
 const CategoryImpoter = require('./importers/category')
 const _ = require('lodash')
+const attribute = require('./lib/attribute')
 
 const es = require('elasticsearch')
 let client = new es.Client({ // as we're runing tax calculation and other data, we need a ES indexer
@@ -33,16 +34,37 @@ function importListOf(entityType, importer, config, api) {
 
     const query = { // TODO: add support for `limit` and `offset` paramters
         objectClass: entityConfig.name,
-        limit: 10
+        limit: 100
     }
     
     let queue = []
     console.log('Getting objects list for', query)
     api.get('object-list').query(query).end((resp) => {
         for(let objDescriptor of resp.body.data) {
-            queue.push(importer.single(objDescriptor)) // TODO: queue;
+            queue.push(importer.single(objDescriptor).then((singleResults) => {
+                let fltResults = _.flatten(singleResults)
+                let attributes = attribute.getMap()
+
+                fltResults.map((prod) => {
+                    client.index({
+                        index: config.elasticsearch.indexName + '_temp',
+                        type: 'product',
+                        id: prod.dst.id,
+                        body: prod.dst
+                    })                    
+                })
+                Object.values(attributes).map((attr) => {
+                    client.index({
+                        index: config.elasticsearch.indexName + '_temp',
+                        type: 'attribute',
+                        id: attr.id,
+                        body: attr
+                    })                    
+                })                
+            })) // TODO: queue;
         }
         Promise.all(queue).then((results) => {
+            console.log('OK')
         })
     })
 }
@@ -55,11 +77,14 @@ cli.command('testproduct',  () => {
    importer.single({ id: 1237 }).then((results) => {
        let fltResults = _.flatten(results)
        let obj = fltResults.find((it) => it.dst.id === 1237)
-       console.log('FINAL RESULTS', fltResults.length, obj, obj.dst.configurable_children)
-   })
+       console.log('PRODUCTS', fltResults.length, obj, obj.dst.configurable_children)
+       console.log('ATTRIBUTES', attribute.getMap())
+       console.log('CO', obj.dst.configurable_options)
+    })
+
    // TODO: Categories
-   // TODO: Attribute dictionaries by templates + default attributes (attributes.json)
    // TODO: Tax Rules by template (taxrules.json)
+   // TODO: Search index aliasing (temp indexes)
    // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
 });
 

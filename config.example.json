@@ -8,6 +8,7 @@
         "locale": "en_GB",
         "assetsPath": "../var/assets",
         "apiKey": "<ENTER YOUR API KEY HERE>",
+        "downloadImages": false,
         "productClass": {
             "id": 12,
             "name": "Product",

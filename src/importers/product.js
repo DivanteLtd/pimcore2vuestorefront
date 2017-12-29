@@ -2,6 +2,7 @@ const _ = require('lodash');
 const fs = require('fs')
 const path = require('path')
 const shell = require('shelljs')
+const attribute = require('../lib/attribute')
 
 module.exports = class {
     constructor(config, api, db) {
@@ -33,17 +34,17 @@ module.exports = class {
             let localizedFields = elements.find((itm)=> { return itm.name === 'localizedfields'})
 
             if(size && size.value)
-                convertedObject.size = size.value
+                convertedObject.size = attribute.mapToVS('size', 'select', size.value)
             
             if(color && color.value)
-                convertedObject.color = Array.isArray(color.value) ? color.value.join(', ') : color.value // TODO: map to Magento attribute IDs?
+                convertedObject.color = attribute.mapToVS('color', 'select', Array.isArray(color.value) ? color.value.join(', ') : color.value) // TODO: map to Magento attribute IDs?
 
             // TODO: map product attributes regarding the templates/attributes.json configuration
             //console.log(pimcoreObjectData)
             let subPromises = []
 
             let imagePromises = []
-            if(images) {
+            if(images && this.config.pimcore.downloadImages) {
                 
                 images.value.map((imgDescr) => {
                     let imgId = imgDescr.value[0].value
@@ -67,7 +68,7 @@ module.exports = class {
 
             Promise.all(imagePromises).then((result) => {
                 
-                if(features) {
+                if(features && features.value) {
                     features.value.map((featDescr) => {
                         subPromises.push((this.api.get(`object/id/${featDescr.id}`).end((resp) => {
                         //  console.log('Feature', resp.body.data.elements.find((el) => { return el.name === 'localizedfields'}))
@@ -75,7 +76,7 @@ module.exports = class {
                     })
                 }
 
-                if(categories) {
+                if(categories && categories.value) {
                     categories.value.map((catDescr) => {
                         subPromises.push(this.api.get(`object/id/${catDescr.id}`).end((resp) => {
                         // console.log('Category', resp.body.data.elements.find((el) => { return el.name === 'localizedfields'}))
@@ -89,8 +90,8 @@ module.exports = class {
 
                     let childObjectsFlattened = _.flatten(childObjects)
 
-                    let color_options = []
-                    let size_options = []
+                    let color_options = new Set()
+                    let size_options = new Set()
                     for(let childObject of childObjectsFlattened) {
                         let confChild = {
                             name: childObject.dst.name,
@@ -98,10 +99,10 @@ module.exports = class {
                             price: childObject.dst.price
                         }
                         if(_.trim(childObject.dst.color) != '')
-                            color_options.push(childObject.dst.color)
+                            color_options.add(childObject.dst.color)
 
                         if(_.trim(childObject.dst.size))
-                            size_options.push(childObject.dst.size)
+                            size_options.add(childObject.dst.size)
 
                         confChild.custom_attributes = [ // other custom attributes can be stored here as well
                             {
@@ -117,11 +118,11 @@ module.exports = class {
                                 "attribute_code": "image"
                             },
                             {
-                                "value": childObject.dst.size, // these attributes are used for configuration, todo: map to attribute dictionary to be used in Magento
+                                "value": `${childObject.dst.size}`, // these attributes are used for configuration, todo: map to attribute dictionary to be used in Magento
                                 "attribute_code": "size"
                             },
                             {
-                                "value": childObject.dst.color, // TODO: map to enumerable attribute to be used in Magento - because are dictionary attrs in Magento
+                                "value": `${childObject.dst.color}`, // TODO: map to enumerable attribute to be used in Magento - because are dictionary attrs in Magento
                                 "attribute_code": "color"
                             },
                             
@@ -135,9 +136,30 @@ module.exports = class {
                         convertedObject.configurable_children.push(confChild)
                     }
                     console.debug(' - Configurable children for: ', convertedObject.id,  convertedObject.configurable_children.length, convertedObject.configurable_children)
-                    convertedObject.color_options = color_options // this is vue storefront feature of setting up the combined options altogether in the parent for allowing filters to work on configurable products
-                    convertedObject.size_options = size_options
+                    convertedObject.color_options = Array.from(color_options) // this is vue storefront feature of setting up the combined options altogether in the parent for allowing filters to work on configurable products
+                    convertedObject.size_options = Array.from(size_options)
 
+
+                    const attrs = attribute.getMap()
+                    const configurableAttrs = ['size', 'color']
+                    convertedObject.configurable_options = []
+
+                    configurableAttrs.map((attrCode) => {
+                        let attr = attrs[attrCode]
+                        let confOptions = {
+                            "attribute_id": attr.id,
+                            "values": [
+                            ],
+                            "product_id": convertedObject.id,
+                            "label": attr.default_frontend_label
+                        }
+                        convertedObject[`${attrCode}_options`].map((op) => {
+                            confOptions.values.push({
+                                value_index: op
+                            })
+                        })
+                        convertedObject.configurable_options.push(confOptions)
+                    })
                 }
                 
                 Promise.all(subPromises).then(results => {
