@@ -6,6 +6,7 @@
     "pimcore": {
         "url": "http://localhost/",
         "locale": "en_GB",
+        "assetsPath": "../var/assets",
         "apiKey": "<ENTER YOUR API KEY HERE>",
         "productClass": {
             "id": 12,

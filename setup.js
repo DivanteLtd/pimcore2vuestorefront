@@ -10,6 +10,7 @@ const isWindows = require('is-windows')
 const isEmptyDir = require('empty-dir')
 const commandExists = require('command-exists')
 const validUrl = require('valid-url');
+const path = require('path')
 
 const PimcoreApiClient = require('./src/lib/pimcore-api')
 let api
@@ -67,9 +68,10 @@ class Pimcore extends Abstract {
         config.elasticsearch.host = this.answers.elasticsearchUrl
         config.elasticsearch.indexName = this.answers.elasticsearchIndexName
         config.pimcore.url = this.answers.pimcoreUrl
+        config.pimcore.assetsPath = this.answers.assetsPath
         config.pimcore.apiKey = this.answers.apiKey
         config.pimcore.locale = this.answers.locale
-        config.pimcore.productClass = pimcoreClassFinder(this.answers.productClass)
+        config.pimcore.productClass = Object.assign(config.pimcore.productClass, pimcoreClassFinder(this.answers.productClass))
         config.pimcore.categoryClass = pimcoreClassFinder(this.answers.categoryClass)
         
         jsonFile.writeFileSync(TARGET_CONFIG_FILE, config, {spaces: 2})
@@ -301,6 +303,18 @@ let questions = [
       return true
     }
   },
+  {
+    type: 'input',
+    name: 'assetsPath',
+    message: 'Enter the assets path. Pimcore images will be downloaded in here:',
+    default: path.normalize(__dirname + '/var/assets'),
+    when: function (answers) {
+      return true
+    },
+    validate: function (value) {
+      return true
+    }
+  },  
   {
     type: 'choice',
     name: 'locale',
