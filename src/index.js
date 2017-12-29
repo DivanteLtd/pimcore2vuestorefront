@@ -5,6 +5,7 @@ const api = new PimcoreApiClient(config.pimcore)
 const ProductImpoter = require('./importers/product')
 const BasicImporter = require('./importers/basic')
 const CategoryImpoter = require('./importers/category')
+const _ = require('lodash')
 
 const es = require('elasticsearch')
 let client = new es.Client({ // as we're runing tax calculation and other data, we need a ES indexer
@@ -42,7 +43,6 @@ function importListOf(entityType, importer, config, api) {
             queue.push(importer.single(objDescriptor)) // TODO: queue;
         }
         Promise.all(queue).then((results) => {
-//            console.log(results)
         })
     })
 }
@@ -53,6 +53,9 @@ cli.command('attributes',  () => { // Simply load attributes description from te
 cli.command('testproduct',  () => {
    let importer = new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
    importer.single({ id: 1237 }).then((results) => {
+       let fltResults = _.flatten(results)
+       let obj = fltResults.find((it) => it.dst.id === 1237)
+       console.log('FINAL RESULTS', fltResults.length, obj, obj.dst.configurable_children)
    })
 });
 

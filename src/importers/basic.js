@@ -42,11 +42,15 @@ module.exports = class {
                     const locale = this.config.pimcore.locale
                     const entityConfig = this.config.pimcore[`${this.entityType}Class`]
                     let localizedFields = objectData.elements.find((itm)=> { return itm.name === 'localizedfields'}).value
+                    let elements = objectData.elements
 
                     result.created_at = new Date(objectData.creationDate*1000)
                     result.updated_at = new Date(objectData.modificationDate*1000)
                     result.id = descriptor.id
                     result.sku = descriptor.id
+
+                    this.mapElements(result, elements)
+                    this.mapElements(result, localizedFields, this.config.pimcore.locale)
 
                     Object.keys(entityConfig.map).map((srcField) => {
                         const dstField = entityConfig.map[srcField]
@@ -83,6 +87,16 @@ module.exports = class {
                 })
             })
         }))
+    }
+
+    mapElements(result, elements, locale = null) {
+        for(let attr of elements) 
+        {
+            if(['multiselect', 'input', 'wysiwyg', 'numeric'].indexOf(attr.type) >= 0 && attr.value && (locale === null || attr.locale === locale)) {
+                console.log(` - attr ${attr.name} mapped for ${result.id} to ${attr.value}`)
+                result[attr.name] = attr.value
+            }
+        }        
     }
 
     resultTemplate (entityType) {
