@@ -1,0 +1,121 @@
+{
+    "is_wysiwyg_enabled": false,
+    "is_html_allowed_on_front": true,
+    "used_for_sort_by": false,
+    "is_filterable": true,
+    "is_filterable_in_search": false,
+    "is_used_in_grid": false,
+    "is_visible_in_grid": false,
+    "is_filterable_in_grid": false,
+    "position": 0,
+    "apply_to": [],
+    "is_searchable": "0",
+    "is_visible_in_advanced_search": "0",
+    "is_comparable": "0",
+    "is_used_for_promo_rules": "1",
+    "is_visible_on_front": "0",
+    "used_in_product_listing": "1",
+    "is_visible": true,
+    "scope": "global",
+    "attribute_id": 142,
+    "attribute_code": "size",
+    "frontend_input": "select",
+    "entity_type_id": "4",
+    "is_required": false,
+    "options": [
+        {
+            "label": " ",
+            "value": ""
+        },
+        {
+            "label": "55 cm",
+            "value": "91"
+        },
+        {
+            "label": "XS",
+            "value": "167"
+        },
+        {
+            "label": "65 cm",
+            "value": "92"
+        },
+        {
+            "label": "S",
+            "value": "168"
+        },
+        {
+            "label": "75 cm",
+            "value": "93"
+        },
+        {
+            "label": "M",
+            "value": "169"
+        },
+        {
+            "label": "6 foot",
+            "value": "94"
+        },
+        {
+            "label": "L",
+            "value": "170"
+        },
+        {
+            "label": "8 foot",
+            "value": "95"
+        },
+        {
+            "label": "XL",
+            "value": "171"
+        },
+        {
+            "label": "10 foot",
+            "value": "96"
+        },
+        {
+            "label": "28",
+            "value": "172"
+        },
+        {
+            "label": "29",
+            "value": "173"
+        },
+        {
+            "label": "30",
+            "value": "174"
+        },
+        {
+            "label": "31",
+            "value": "175"
+        },
+        {
+            "label": "32",
+            "value": "176"
+        },
+        {
+            "label": "33",
+            "value": "177"
+        },
+        {
+            "label": "34",
+            "value": "178"
+        },
+        {
+            "label": "36",
+            "value": "179"
+        },
+        {
+            "label": "38",
+            "value": "180"
+        }
+    ],
+    "is_user_defined": true,
+    "default_frontend_label": "Size",
+    "frontend_labels": null,
+    "backend_type": "int",
+    "is_unique": "0",
+    "validation_rules": [],
+    "id": 142,
+    "tsk": 1512134647691,
+    "default_value": "91",
+    "source_model": "Magento\Eav\Model\Entity\Attribute\Source\Table"
+}

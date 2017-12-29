@@ -57,6 +57,10 @@ cli.command('testproduct',  () => {
        let obj = fltResults.find((it) => it.dst.id === 1237)
        console.log('FINAL RESULTS', fltResults.length, obj, obj.dst.configurable_children)
    })
+   // TODO: Categories
+   // TODO: Attribute dictionaries by templates + default attributes (attributes.json)
+   // TODO: Tax Rules by template (taxrules.json)
+   // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
 });
 
 
