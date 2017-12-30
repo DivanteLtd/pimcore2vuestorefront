@@ -42,15 +42,15 @@ function importListOf(entityType, importer, config, api) {
     api.get('object-list').query(query).end((resp) => {
         for(let objDescriptor of resp.body.data) {
             queue.push(importer.single(objDescriptor).then((singleResults) => {
-                let fltResults = _.flatten(singleResults)
+                let fltResults = _.flattenDeep(singleResults)
                 let attributes = attribute.getMap()
 
-                fltResults.map((prod) => {
+                fltResults.map((ent) => {
                     client.index({
                         index: config.elasticsearch.indexName + '_temp',
-                        type: 'product',
-                        id: prod.dst.id,
-                        body: prod.dst
+                        type: entityType,
+                        id: ent.dst.id,
+                        body: ent.dst
                     })                    
                 })
                 Object.values(attributes).map((attr) => {
@@ -61,7 +61,7 @@ function importListOf(entityType, importer, config, api) {
                         body: attr
                     })                    
                 })                
-            })) // TODO: queue;
+            })) // TODO: queue and add paging
         }
         Promise.all(queue).then((results) => {
             console.log('OK')
@@ -72,6 +72,21 @@ function importListOf(entityType, importer, config, api) {
 cli.command('attributes',  () => { // Simply load attributes description from templates/attributes.json instead of dynamic mapping from pimcore
 });
 
+cli.command('testcategory',  () => {
+    let importer = new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
+    importer.single({ id: 11147 }).then((results) => {
+        let fltResults = _.flattenDeep(results)
+        let obj = fltResults.find((it) => it.dst.id === 11147)
+        console.log('CATEGORIES', fltResults.length, obj, obj.dst.children_data)
+        console.log('ATTRIBUTES', attribute.getMap())
+        console.log('CO', obj.dst.configurable_options)
+     })
+    // TODO: Tax Rules by template (taxrules.json)
+    // TODO: Search index aliasing (temp indexes)
+    // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
+ });
+ 
+
 cli.command('testproduct',  () => {
    let importer = new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
    importer.single({ id: 1237 }).then((results) => {
@@ -81,8 +96,6 @@ cli.command('testproduct',  () => {
        console.log('ATTRIBUTES', attribute.getMap())
        console.log('CO', obj.dst.configurable_options)
     })
-
-   // TODO: Categories
    // TODO: Tax Rules by template (taxrules.json)
    // TODO: Search index aliasing (temp indexes)
    // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories

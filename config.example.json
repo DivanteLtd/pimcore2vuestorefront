@@ -20,7 +20,11 @@
           },
           "categoryClass": {
             "id": 14,
-            "name": "ProductCategory"
+            "name": "ProductCategory",
+            "map": {
+                "name": "name",
+                "description": "description"
+            }            
           }
     }
 }

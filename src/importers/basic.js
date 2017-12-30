@@ -29,7 +29,7 @@ module.exports = class {
                             subpromises.push(this.single(chdDescriptor))
                         }
                     }
-                    new Promise(((subresolve, subreject) => {
+                    new Promise(((subresolve, subreject) => { // TODO: we should extrapolate the code snippet below and make it more general; In other words: to add the same behaviour like we do have here for ALL "objects" related - to download all the connected technologies etc
                         this.api.get('object-list').query({
                             condition: 'o_parentId=\'' + descriptor.id + '\' AND o_type=\'variant\'', // get variants
                         }).end(((resp) => {
@@ -54,18 +54,18 @@ module.exports = class {
                         result.id = descriptor.id
                         result.sku = descriptor.id
 
-                        this.mapElements(result, elements)
-                        this.mapElements(result, localizedFields, this.config.pimcore.locale)
+                        attribute.mapElements(result, elements)
+                        attribute.mapElements(result, localizedFields, this.config.pimcore.locale)
 
                         Object.keys(entityConfig.map).map((srcField) => {
                             const dstField = entityConfig.map[srcField]
                             const dstValue = localizedFields.find((lf) => { return lf.name === dstField && lf.language === locale})
 
-                            if(!dstValue)
-                            {
+                            if(!dstValue) {
                                 console.error('Cannot find the value for ', dstField, locale)
+                            } else {
+                                result[srcField] = dstValue.type === 'numeric' ? parseFloat(dstValue.value) : dstValue.value
                             }
-                            result[srcField] = dstValue.type === 'numeric' ? parseFloat(dstValue.value) : dstValue.value
                         })
                         
                         Promise.all(subpromises).then((childrenResults) => {
@@ -97,18 +97,8 @@ module.exports = class {
         }))
     }
 
-    mapElements(result, elements, locale = null) {
-        for(let attr of elements) 
-        {
-            if(['multiselect', 'input', 'wysiwyg', 'numeric'].indexOf(attr.type) >= 0 && attr.value && (locale === null || attr.locale === locale)) {
-                console.log(` - attr ${attr.name} values: ${result.id} to ${attr.value}`)
-                result[attr.name] = attribute.mapToVS(attr.name, attr.type, Array.isArray(attr.value) ? attr.value.join(', ') : attr.value)
-                console.log(` - vs attr ${attr.name} values: ${result.id} to ${result[attr.name]}`)
-            }
-        }        
-    }
 
-    resultTemplate (entityType) {
+    resultTemplate (entityType) { // TODO: add /templates/general.json for all the other entities - like featured product links etc to map all the linked objects and so on
         return Object.assign({}, require(`./templates/${entityType}.json`))
     }
 }

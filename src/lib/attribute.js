@@ -41,7 +41,18 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
         return attributeValue
         // we're fine here for decimal and varchar attributes
     }
+}
 
+
+function mapElements(result, elements, locale = null) {
+    for(let attr of elements) {
+        if(['multiselect', 'input', 'wysiwyg', 'numeric'].indexOf(attr.type) >= 0 && attr.value && (locale === null || attr.language == locale)) {
+            console.log(` - attr ${attr.name} values: ${result.id} to ${attr.value}`)
+            result[attr.name] = mapToVS(attr.name, attr.type, Array.isArray(attr.value) ? attr.value.join(', ') : attr.value)
+            console.log(` - vs attr ${attr.name} values: ${result.id} to ${result[attr.name]}`)
+        }
+    } 
+    return result       
 }
 
 function attributeTemplate(attributeCode, attributeType = null) { // TODO: if we plan to support not full reindexes then we shall load the attribute templates from ES (previously filled up attrbutes)
@@ -67,3 +78,5 @@ exports.attributeTemplate = attributeTemplate
  * @param {mixed} attributeValue 
  */
 exports.mapToVS = mapToVS
+
+exports.mapElements = mapElements

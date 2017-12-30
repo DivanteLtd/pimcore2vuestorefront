@@ -75,11 +75,24 @@ module.exports = class {
                         })))
                     })
                 }
-
+                convertedObject.category = []
+                convertedObject.category_ids = []
                 if(categories && categories.value) {
                     categories.value.map((catDescr) => {
-                        subPromises.push(this.api.get(`object/id/${catDescr.id}`).end((resp) => {
-                        // console.log('Category', resp.body.data.elements.find((el) => { return el.name === 'localizedfields'}))
+                        subPromises.push(new Promise((catResolve, catReject) => {
+                            this.api.get(`object/id/${catDescr.id}`).end((resp) => {
+                                if(resp.body && resp.body.data) {
+                                    let catLocalizedFields = resp.body.data.elements.find((el) => { return el.name === 'localizedfields'})
+                                    let catObject = { category_id: catDescr.id }
+                                    if(catLocalizedFields) {
+                                        attribute.mapElements(catObject, catLocalizedFields.value, this.config.pimcore.locale)
+                                        console.log(' - mapped product category ', catObject)
+                                    }
+                                    catResolve(catObject)
+                                    convertedObject.category.push(catObject)
+                                    convertedObject.category_ids.push(catObject.category_id)
+                                }
+                            })
                         }))
                     })
                 }
