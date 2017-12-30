@@ -7,13 +7,16 @@ const BasicImporter = require('./importers/basic')
 const CategoryImpoter = require('./importers/category')
 const _ = require('lodash')
 const attribute = require('./lib/attribute')
+const promiseLimit = require('promise-limit')
+const limit = promiseLimit(2) // limit N promises to be executed at time
+
 
 const es = require('elasticsearch')
 let client = new es.Client({ // as we're runing tax calculation and other data, we need a ES indexer
     host: config.elasticsearch.host,
-    log: 'debug',
+    log: 'error',
     apiVersion: '5.5',
-    requestTimeout: 5000
+    requestTimeout: 50000
 })
 
 const CommandRouter = require('command-router')
@@ -26,7 +29,7 @@ const cli = CommandRouter()
  * @param {String} entityType 
  * @param {Object} importer 
  */
-function importListOf(entityType, importer, config, api) {
+function importListOf(entityType, importer, config, api, offset = 0, count = 100) {
     let entityConfig = config.pimcore[`${entityType}Class`]
     if (!entityConfig) {
         throw new Error(`No Pimcore class configuration for ${entityType}`)
@@ -34,14 +37,18 @@ function importListOf(entityType, importer, config, api) {
 
     const query = { // TODO: add support for `limit` and `offset` paramters
         objectClass: entityConfig.name,
-        limit: 100
+        offset: offset,
+        limit: count
     }
-    
-    let queue = []
-    console.log('Getting objects list for', query)
+
+    let generalQueue = []
+    console.log('*** Getting objects list for', query)
     api.get('object-list').query(query).end((resp) => {
+        
+        let queue = []
+        let index = 0
         for(let objDescriptor of resp.body.data) {
-            queue.push(importer.single(objDescriptor).then((singleResults) => {
+            queue.push(limit(() => importer.single(objDescriptor).then((singleResults) => {
                 let fltResults = _.flattenDeep(singleResults)
                 let attributes = attribute.getMap()
 
@@ -61,10 +68,18 @@ function importListOf(entityType, importer, config, api) {
                         body: attr
                     })                    
                 })                
-            })) // TODO: queue and add paging
+                console.log('* Record done for ', objDescriptor.id, index, count)
+                index++
+            }))) // TODO: queue and add paging
         }
         Promise.all(queue).then((results) => {
-            console.log('OK')
+            console.log('** Page done ', offset, resp.body.total)
+            
+            if(resp.body.total === count)
+            {
+                console.log('*** Switching page!')
+                return importListOf(entityType, importer, config, api, offset += count, count) 
+            }
         })
     })
 }
@@ -74,9 +89,9 @@ cli.command('attributes',  () => { // Simply load attributes description from te
 
 cli.command('testcategory',  () => {
     let importer = new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
-    importer.single({ id: 11147 }).then((results) => {
+    importer.single({ id: 11148 }).then((results) => {
         let fltResults = _.flattenDeep(results)
-        let obj = fltResults.find((it) => it.dst.id === 11147)
+        let obj = fltResults.find((it) => it.dst.id === 11148)
         console.log('CATEGORIES', fltResults.length, obj, obj.dst.children_data)
         console.log('ATTRIBUTES', attribute.getMap())
         console.log('CO', obj.dst.configurable_options)

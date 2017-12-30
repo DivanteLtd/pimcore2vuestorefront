@@ -16,9 +16,9 @@ module.exports = class {
      * This is an EXAMPLE of custom Product / entity mapper; you can write your own to map the Pimcore entities to vue-storefront data format (see: templates/product.json for reference)
      * @returns Promise
      */
-    single(pimcoreObjectData, convertedObject, childObjects) {
+    single(pimcoreObjectData, convertedObject, childObjects, level = 1) {
         return new Promise((resolve, reject) => {
-            console.log('Helo from custom product converter for', convertedObject.id)
+            console.debug('Helo from custom product converter for', convertedObject.id)
             convertedObject.url_key = pimcoreObjectData.key // pimcoreObjectData.path?
             convertedObject.type_id = (childObjects.length > 0) ? 'configurable' : 'simple'
 
@@ -57,7 +57,7 @@ module.exports = class {
                                 
                                 shell.mkdir('-p', path.join(this.config.pimcore.assetsPath, imageRelativePath))
                                 fs.writeFileSync(imageAbsolutePath, Buffer.from(resp.body.data.data, 'base64'))
-                                console.log(`File ${imageName} stored to ${imageAbsolutePath}`)
+                                console.debug(`File ${imageName} stored to ${imageAbsolutePath}`)
                                 convertedObject.image = path.join(imageRelativePath, imageName)
                                 imgResolve()
                             }
@@ -66,6 +66,7 @@ module.exports = class {
                 })
             }
 
+            console.log('Downloading binary assets for ', convertedObject.id)
             Promise.all(imagePromises).then((result) => {
                 
                 if(features && features.value) {
@@ -86,7 +87,7 @@ module.exports = class {
                                     let catObject = { category_id: catDescr.id }
                                     if(catLocalizedFields) {
                                         attribute.mapElements(catObject, catLocalizedFields.value, this.config.pimcore.locale)
-                                        console.log(' - mapped product category ', catObject)
+                                        console.debug(' - mapped product category ', catObject)
                                     }
                                     catResolve(catObject)
                                     convertedObject.category.push(catObject)

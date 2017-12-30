@@ -1,4 +1,6 @@
 const attribute = require('../lib/attribute')
+const promiseLimit = require('promise-limit')
+const limit = promiseLimit(4) // limit N promises to be executed at time
 
 module.exports = class {
     constructor(entityType, customImporter, config, api, db) {
@@ -14,7 +16,7 @@ module.exports = class {
     /**
      * @returns Promise
      */
-    single(descriptor) {
+    single(descriptor, level = 1) {
         return new Promise(((resolve, reject) => {
             this.api.get(`object/id/${descriptor.id}`).end((resp) => {
                 console.log('Processing object: ', descriptor.id)
@@ -26,7 +28,7 @@ module.exports = class {
                     if (objectData.childs) {
                         for (let chdDescriptor of objectData.childs) {
                             console.log('- child objects found: ', chdDescriptor.id, descriptor.id)
-                            subpromises.push(this.single(chdDescriptor))
+                            subpromises.push(limit(() => this.single(chdDescriptor, level + 1)))
                         }
                     }
                     new Promise(((subresolve, subreject) => { // TODO: we should extrapolate the code snippet below and make it more general; In other words: to add the same behaviour like we do have here for ALL "objects" related - to download all the connected technologies etc
@@ -36,7 +38,7 @@ module.exports = class {
                             if(resp.body && resp.body.data)
                                 for (let chdDescriptor of resp.body.data) {
                                     console.log('- variant object found: ', chdDescriptor.id, descriptor.id)
-                                    subpromises.push(this.single(chdDescriptor))
+                                    subpromises.push(limit(() => this.single(chdDescriptor, level + 1)))
                                 }
                             subresolve(subpromises)
                         }).bind(this))

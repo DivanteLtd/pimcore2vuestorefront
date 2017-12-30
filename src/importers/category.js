@@ -16,10 +16,12 @@ module.exports = class {
      * This is an EXAMPLE of custom Product / entity mapper; you can write your own to map the Pimcore entities to vue-storefront data format (see: templates/product.json for reference)
      * @returns Promise
      */
-    single(pimcoreObjectData, convertedObject, childObjects) {
+    single(pimcoreObjectData, convertedObject, childObjects, level = 1) {
         return new Promise((resolve, reject) => {
             console.log('Helo from custom category converter for', convertedObject.id)
             convertedObject.url_key = pimcoreObjectData.key // pimcoreObjectData.path?
+            convertedObject.level = level
+            convertedObject.parent_id = pimcoreObjectData.parentId
             let subPromises = []
 
             convertedObject.children_data = [] // clear the options
@@ -36,6 +38,7 @@ module.exports = class {
                             id: childObject.dst.id,
                             parent_id: convertedObject.id,
                             is_active: true,
+                            level: level + 1,
                             children_data: childObject.dst.children_data
                         }
                         

@@ -47,9 +47,9 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
 function mapElements(result, elements, locale = null) {
     for(let attr of elements) {
         if(['multiselect', 'input', 'wysiwyg', 'numeric'].indexOf(attr.type) >= 0 && attr.value && (locale === null || attr.language == locale)) {
-            console.log(` - attr ${attr.name} values: ${result.id} to ${attr.value}`)
+            console.debug(` - attr ${attr.name} values: ${result.id} to ${attr.value}`)
             result[attr.name] = mapToVS(attr.name, attr.type, Array.isArray(attr.value) ? attr.value.join(', ') : attr.value)
-            console.log(` - vs attr ${attr.name} values: ${result.id} to ${result[attr.name]}`)
+            console.debug(` - vs attr ${attr.name} values: ${result.id} to ${result[attr.name]}`)
         }
     } 
     return result       
@@ -57,7 +57,7 @@ function mapElements(result, elements, locale = null) {
 
 function attributeTemplate(attributeCode, attributeType = null) { // TODO: if we plan to support not full reindexes then we shall load the attribute templates from ES (previously filled up attrbutes)
     if(!fs.existsSync(path.join(__dirname, `../importers/templates/attribute_code_${attributeCode}.json`))) {
-        console.log(`Loading attribute by type ${attributeType}`)
+        console.debug(`Loading attribute by type ${attributeType}`)
         let attr = Object.assign({}, require(`../importers/templates/attribute_type_${attributeType}`))
         attr.attribute_code = attributeCode
         attr.default_frontend_label = attributeCode
@@ -65,7 +65,7 @@ function attributeTemplate(attributeCode, attributeType = null) { // TODO: if we
         return attr
     }
     else {
-        console.log(`Loading attribute by code ${attributeCode}`) // in this case we have pretty damn good attribute meta in template, like name etc
+        console.debug(`Loading attribute by code ${attributeCode}`) // in this case we have pretty damn good attribute meta in template, like name etc
         return require(`../importers/templates/attribute_code_${attributeCode}`)
     }
 }
