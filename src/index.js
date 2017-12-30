@@ -121,7 +121,7 @@ cli.command('products',  () => {
     importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api)
 });
 
-cli.command('categories',  () => {
+cli.command('categories',  () => { // TODO: modify to import only the root category tree not plain list of all categories
     importListOf('category', new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client), config, api)
 });
   
