@@ -9,6 +9,7 @@
         "assetsPath": "../var/assets",
         "apiKey": "<ENTER YOUR API KEY HERE>",
         "downloadImages": false,
+        "rootCategoryId": 11148,
         "productClass": {
             "id": 12,
             "name": "Product",

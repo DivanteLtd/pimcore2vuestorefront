@@ -8,7 +8,7 @@ const CategoryImpoter = require('./importers/category')
 const _ = require('lodash')
 const attribute = require('./lib/attribute')
 const promiseLimit = require('promise-limit')
-const limit = promiseLimit(2) // limit N promises to be executed at time
+const limit = promiseLimit(3) // limit N promises to be executed at time
 
 
 const es = require('elasticsearch')
@@ -22,6 +22,39 @@ let client = new es.Client({ // as we're runing tax calculation and other data, 
 const CommandRouter = require('command-router')
 const cli = CommandRouter()
 
+cli.option({ name: 'offset'
+, alias: 'p'
+, default: 0
+, type: Number
+})
+cli.option({ name: 'limit'
+, alias: 'l'
+, default: 50
+, type: Number
+})
+
+
+function storeResults(singleResults, entityType) {
+    let fltResults = _.flattenDeep(singleResults)
+    let attributes = attribute.getMap()
+
+    fltResults.map((ent) => {
+        client.index({
+            index: config.elasticsearch.indexName + '_temp',
+            type: entityType,
+            id: ent.dst.id,
+            body: ent.dst
+        })                    
+    })
+    Object.values(attributes).map((attr) => {
+        client.index({
+            index: config.elasticsearch.indexName + '_temp',
+            type: 'attribute',
+            id: attr.id,
+            body: attr
+        })                    
+    })                
+}
 
 
 /**
@@ -48,35 +81,23 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
         let queue = []
         let index = 0
         for(let objDescriptor of resp.body.data) {
-            queue.push(limit(() => importer.single(objDescriptor).then((singleResults) => {
-                let fltResults = _.flattenDeep(singleResults)
-                let attributes = attribute.getMap()
-
-                fltResults.map((ent) => {
-                    client.index({
-                        index: config.elasticsearch.indexName + '_temp',
-                        type: entityType,
-                        id: ent.dst.id,
-                        body: ent.dst
-                    })                    
-                })
-                Object.values(attributes).map((attr) => {
-                    client.index({
-                        index: config.elasticsearch.indexName + '_temp',
-                        type: 'attribute',
-                        id: attr.id,
-                        body: attr
-                    })                    
-                })                
+            queue.push(/*limit(() => */importer.single(objDescriptor).then((singleResults) => {
+                storeResults(singleResults, entityType)
                 console.log('* Record done for ', objDescriptor.id, index, count)
                 index++
-            }))) // TODO: queue and add paging
+            })) // TODO: queue and add paging
         }
         Promise.all(queue).then((results) => {
             console.log('** Page done ', offset, resp.body.total)
             
             if(resp.body.total === count)
             {
+                try {
+                    global.gc();
+                  } catch (e) {
+                    console.log("WARNING: You can run program with 'node --expose-gc index.js' or 'npm start'");
+                  }
+
                 console.log('*** Switching page!')
                 return importListOf(entityType, importer, config, api, offset += count, count) 
             }
@@ -84,8 +105,34 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
     })
 }
 
-cli.command('attributes',  () => { // Simply load attributes description from templates/attributes.json instead of dynamic mapping from pimcore
+cli.command('products',  () => {
+    importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit)
 });
+
+cli.command('categories',  () => { 
+    let importer = new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
+    importer.single({ id: config.pimcore.rootCategoryId }, level = 1, parent_id = 1).then((results) => {
+        let fltResults = _.flattenDeep(results)
+        storeResults(fltResults, 'category')
+     })});
+  
+cli.on('notfound', (action) => {
+  console.error('I don\'t know how to: ' + action)
+  process.exit(1)
+})
+  
+  
+process.on('unhandledRejection', (reason, p) => {
+  console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+   // application specific logging, throwing an error, or other logic here
+});
+  
+  
+  // RUN
+cli.parse(process.argv);
+
+
+// FOR DEV/DEBUG PURPOSES
 
 cli.command('testcategory',  () => {
     let importer = new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
@@ -115,29 +162,4 @@ cli.command('testproduct',  () => {
    // TODO: Search index aliasing (temp indexes)
    // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
 });
-
-
-cli.command('products',  () => {
-    importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api)
-});
-
-cli.command('categories',  () => { // TODO: modify to import only the root category tree not plain list of all categories
-    importListOf('category', new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client), config, api)
-});
-  
-cli.on('notfound', (action) => {
-  console.error('I don\'t know how to: ' + action)
-  process.exit(1)
-})
-  
-  
-process.on('unhandledRejection', (reason, p) => {
-  console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
-   // application specific logging, throwing an error, or other logic here
-});
-  
-  
-  // RUN
-cli.parse(process.argv);
-
   

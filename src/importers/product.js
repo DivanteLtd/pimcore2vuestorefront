@@ -16,7 +16,7 @@ module.exports = class {
      * This is an EXAMPLE of custom Product / entity mapper; you can write your own to map the Pimcore entities to vue-storefront data format (see: templates/product.json for reference)
      * @returns Promise
      */
-    single(pimcoreObjectData, convertedObject, childObjects, level = 1) {
+    single(pimcoreObjectData, convertedObject, childObjects, level = 1, parent_id = null) {
         return new Promise((resolve, reject) => {
             console.debug('Helo from custom product converter for', convertedObject.id)
             convertedObject.url_key = pimcoreObjectData.key // pimcoreObjectData.path?
@@ -64,9 +64,9 @@ module.exports = class {
                         })
                     }))
                 })
+                console.log('Downloading binary assets for ', convertedObject.id)
             }
 
-            console.log('Downloading binary assets for ', convertedObject.id)
             Promise.all(imagePromises).then((result) => {
                 
                 if(features && features.value) {
@@ -112,10 +112,12 @@ module.exports = class {
                             sku: childObject.dst.sku,
                             price: childObject.dst.price
                         }
+
+                        childObject.dst.visibility = 1 // Magento's constant which means: skip in search and category results - we're hiding the variants from being visible within the categories
                         if(_.trim(childObject.dst.color) != '')
                             color_options.add(childObject.dst.color)
 
-                        if(_.trim(childObject.dst.size))
+                        if(_.trim(childObject.dst.size) != '')
                             size_options.add(childObject.dst.size)
 
                         confChild.custom_attributes = [ // other custom attributes can be stored here as well
@@ -174,6 +176,9 @@ module.exports = class {
                         })
                         convertedObject.configurable_options.push(confOptions)
                     })
+                } else {
+                    convertedObject.configurable_options = []
+                    convertedObject.configurable_children = []
                 }
                 
                 Promise.all(subPromises).then(results => {
