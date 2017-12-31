@@ -26,6 +26,7 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
             let lastOption = attr.options.length > 0 ? attr.options[attr.options.length-1] : null // we can use memored or elastic search to store each option per each attribute separately - to keep the same indexes between processes for example key would be: $attribute_code$$attribute_value = 14 
                                                                                                   // OR SEND MODIFIED attributes to the workers each time attrHash changes: https://nodejs.org/api/cluster.html#cluster_cluster_workers
                                                                                                   // OR WORK ON MUTEXES https://github.com/ttiny/mutex-node
+                                                                                                  // OR WORK ON FILE LOCKS https://www.npmjs.com/package/lockfile
             let optIndex = 1
             if (lastOption) {
                 optIndex = lastOption.value + 1
