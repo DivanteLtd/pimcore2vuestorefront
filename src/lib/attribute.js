@@ -1,6 +1,9 @@
 const fs = require('fs')
 const path = require('path')
-// memored = require('memored'); TODO: interprocess cache - can be used for synchronizing the attributes between processes
+const Mutex = require( 'Mutex' );
+const memored = require('memored'); TODO: interprocess cache - can be used for synchronizing the attributes between processes
+
+const mutex = new Mutex( 'attributesMutex' );
 
 
 let attrHash = {}
@@ -12,6 +15,8 @@ exports.getMap = () => {
 
 
 function mapToVS (attributeCode, attributeType, attributeValue) {
+    mutex.lock()
+
     let attr = attrHash[attributeCode]
     if (! attr) {
         attr = attributeTemplate(attributeCode, attributeType)
@@ -26,6 +31,7 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
         if(!existingOption) {
             let lastOption = attr.options.length > 0 ? attr.options[attr.options.length-1] : null // we can use memored or elastic search to store each option per each attribute separately - to keep the same indexes between processes for example key would be: $attribute_code$$attribute_value = 14 
                                                                                                   // OR SEND MODIFIED attributes to the workers each time attrHash changes: https://nodejs.org/api/cluster.html#cluster_cluster_workers
+                                                                                                  // OR WORK ON MUTEXES https://github.com/ttiny/mutex-node
             let optIndex = 1
             if (lastOption) {
                 optIndex = lastOption.value + 1
@@ -34,13 +40,16 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
                 label: attributeValue,
                 value: optIndex
             })
+            mutex.unlock()
             return optIndex
         } else {
+            mutex.unlock()
             return existingOption.value // non select attrs
         }
 
 
     } else {
+        mutex.unlock()
         return attributeValue
         // we're fine here for decimal and varchar attributes
     }
