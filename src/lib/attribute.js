@@ -24,7 +24,8 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
     if (attr.frontend_input == 'select') {
         let existingOption = attr.options.find((option) => { return option.label == attributeValue})
         if(!existingOption) {
-            let lastOption = attr.options.length > 0 ? attr.options[attr.options.length-1] : null
+            let lastOption = attr.options.length > 0 ? attr.options[attr.options.length-1] : null // we can use memored or elastic search to store each option per each attribute separately - to keep the same indexes between processes for example key would be: $attribute_code$$attribute_value = 14 
+                                                                                                  // OR SEND MODIFIED attributes to the workers each time attrHash changes: https://nodejs.org/api/cluster.html#cluster_cluster_workers
             let optIndex = 1
             if (lastOption) {
                 optIndex = lastOption.value + 1
