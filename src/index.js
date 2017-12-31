@@ -85,7 +85,7 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
                 storeResults(singleResults, entityType)
                 console.log('* Record done for ', objDescriptor.id, index, count)
                 index++
-            })) // TODO: queue and add paging
+            })) 
         }
         Promise.all(queue).then((results) => {
             console.log('** Page done ', offset, resp.body.total)
@@ -104,6 +104,10 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
         })
     })
 }
+// TODO: 
+//  1. Add taxrules importer
+//  2. Images server
+//  3. Add index emptying / temp index creation and aliases
 
 cli.command('products',  () => {
     importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit)
