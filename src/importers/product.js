@@ -183,8 +183,8 @@ module.exports = class {
                 
                 Promise.all(subPromises).then(results => {
                     resolve({ src: pimcoreObjectData, dst: convertedObject })
-                })
-            })
+                }).catch((reason) => { console.error(reason) })
+            }).catch((reason) => { console.error(reason) })
         })
     }
 }

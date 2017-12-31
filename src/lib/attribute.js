@@ -1,5 +1,7 @@
 const fs = require('fs')
 const path = require('path')
+// memored = require('memored'); TODO: interprocess cache - can be used for synchronizing the attributes between processes
+
 
 let attrHash = {}
 let maxAttrId = 1 // used for attr ids

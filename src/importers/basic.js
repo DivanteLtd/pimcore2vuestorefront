@@ -17,6 +17,7 @@ module.exports = class {
      */
     single(descriptor, level = 1, parent_id = null) {
         return new Promise(((resolve, reject) => {
+            console.debug('** REC. LEVEL = ', level)
             this.api.get(`object/id/${descriptor.id}`).end((resp) => {
                 console.log('Processing object: ', descriptor.id)
 
@@ -78,7 +79,7 @@ module.exports = class {
                                         childrenResults.push(resp)
                                         resolve(childrenResults)
                                     } else resolve(resp)
-                                })
+                                }).catch((reason) => { console.error(reason) })
                             } else {
                                 if (childrenResults.length > 0)
                                 {                        
@@ -89,8 +90,8 @@ module.exports = class {
                                 }
                                 
                             }
-                        })
-                    })
+                        }).catch((reason) => { console.error(reason) })
+                    }).catch((reason) => { console.error(reason) })
                 } else {
                     console.error('No Data for ', descriptor.id)
                 }

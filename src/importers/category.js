@@ -25,7 +25,7 @@ module.exports = class {
                 convertedObject.parent_id = parent_id
             else
                 convertedObject.parent_id = pimcoreObjectData.parentId
-                
+
             let subPromises = []
 
             convertedObject.children_data = [] // clear the options
@@ -54,7 +54,7 @@ module.exports = class {
             
             Promise.all(subPromises).then(results => {
                 resolve({ src: pimcoreObjectData, dst: convertedObject })
-            })
+            }).catch((reason) => { console.error(reason) })
         })
     }
 }

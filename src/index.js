@@ -7,9 +7,12 @@ const BasicImporter = require('./importers/basic')
 const CategoryImpoter = require('./importers/category')
 const _ = require('lodash')
 const attribute = require('./lib/attribute')
+
 const promiseLimit = require('promise-limit')
 const limit = promiseLimit(3) // limit N promises to be executed at time
+const promise = require('./lib/promise') // right now we're using serial execution because of recursion stack issues
 
+const { spawn } = require('child_process');
 
 const es = require('elasticsearch')
 let client = new es.Client({ // as we're runing tax calculation and other data, we need a ES indexer
@@ -29,8 +32,14 @@ cli.option({ name: 'offset'
 })
 cli.option({ name: 'limit'
 , alias: 'l'
-, default: 50
+, default: 10
 , type: Number
+})
+
+cli.option({ name: 'switchPage'
+, alias: 's'
+, default: true
+, type: Boolean
 })
 
 
@@ -81,13 +90,13 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
         let queue = []
         let index = 0
         for(let objDescriptor of resp.body.data) {
-            queue.push(/*limit(() => */importer.single(objDescriptor).then((singleResults) => {
+            queue.push(() => importer.single(objDescriptor).then((singleResults) => {
                 storeResults(singleResults, entityType)
                 console.log('* Record done for ', objDescriptor.id, index, count)
                 index++
-            })) 
+            }))
         }
-        Promise.all(queue).then((results) => {
+        promise.serial(queue).then((results) => {
             console.log('** Page done ', offset, resp.body.total)
             
             if(resp.body.total === count)
@@ -98,16 +107,21 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
                     console.log("WARNING: You can run program with 'node --expose-gc index.js' or 'npm start'");
                   }
 
-                console.log('*** Switching page!')
-                return importListOf(entityType, importer, config, api, offset += count, count) 
+                if(cli.options.switchPage) {
+                    console.log('*** Switching page!')
+                    return importListOf(entityType, importer, config, api, offset += count, count) 
+                }
             }
-        })
+        }).catch((reason) => { console.error(reason) })
     })
 }
 // TODO: 
 //  1. Add taxrules importer
 //  2. Images server
 //  3. Add index emptying / temp index creation and aliases
+//  4. Add root category selector (as numeric value) to the setup process 
+//  5. Add styles for color attributes like "white, black" etc 
+// EXTRA: Interprocess cache for attributes
 
 cli.command('products',  () => {
     importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit)
@@ -130,8 +144,14 @@ process.on('unhandledRejection', (reason, p) => {
   console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
    // application specific logging, throwing an error, or other logic here
 });
+
+process.on('uncaughtException', function (exception) {
+    console.log(exception); // to see your exception details in the console
+    // if you are on production, maybe you can send the exception details to your
+    // email as well ?
+});
   
-  
+ 
   // RUN
 cli.parse(process.argv);
 
@@ -146,7 +166,7 @@ cli.command('testcategory',  () => {
         console.log('CATEGORIES', fltResults.length, obj, obj.dst.children_data)
         console.log('ATTRIBUTES', attribute.getMap())
         console.log('CO', obj.dst.configurable_options)
-     })
+     }).catch((reason) => { console.error(reason) })
     // TODO: Tax Rules by template (taxrules.json)
     // TODO: Search index aliasing (temp indexes)
     // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
@@ -161,9 +181,16 @@ cli.command('testproduct',  () => {
        console.log('PRODUCTS', fltResults.length, obj, obj.dst.configurable_children)
        console.log('ATTRIBUTES', attribute.getMap())
        console.log('CO', obj.dst.configurable_options)
-    })
+    }).catch((reason) => { console.error(reason) })
    // TODO: Tax Rules by template (taxrules.json)
    // TODO: Search index aliasing (temp indexes)
    // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
 });
   
+// Using a single function to handle multiple signals
+function handle(signal) {
+    console.log('Received  exit signal. Bye!');
+    process.exit(-1)
+  }
+process.on('SIGINT', handle);
+process.on('SIGTERM', handle);
