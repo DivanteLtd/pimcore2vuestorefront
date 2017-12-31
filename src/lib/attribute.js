@@ -1,10 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const Mutex = require( 'Mutex' );
-const memored = require('memored'); TODO: interprocess cache - can be used for synchronizing the attributes between processes
-
-const mutex = new Mutex( 'attributesMutex' );
-
+const memored = require('memored'); // TODO: interprocess cache - can be used for synchronizing the attributes between processes
 
 let attrHash = {}
 let maxAttrId = 1 // used for attr ids
@@ -15,8 +11,6 @@ exports.getMap = () => {
 
 
 function mapToVS (attributeCode, attributeType, attributeValue) {
-    mutex.lock()
-
     let attr = attrHash[attributeCode]
     if (! attr) {
         attr = attributeTemplate(attributeCode, attributeType)
@@ -40,16 +34,13 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
                 label: attributeValue,
                 value: optIndex
             })
-            mutex.unlock()
             return optIndex
         } else {
-            mutex.unlock()
             return existingOption.value // non select attrs
         }
 
 
     } else {
-        mutex.unlock()
         return attributeValue
         // we're fine here for decimal and varchar attributes
     }
