@@ -45,6 +45,16 @@ cli.option({ name: 'switchPage'
 , type: Boolean
 })
 
+function recreateTempIndex() {
+    return client.indices.delete({
+        index: config.elasticsearch.indexName + '_temp'
+    }).then((result) => {
+        console.log(result)
+        client.indices.create({ index: config.elasticsearch.indexName + '_temp' }).then(result=>{
+            console.log(result)
+        })
+    })    
+}
 
 function storeResults(singleResults, entityType) {
     let fltResults = _.flattenDeep(singleResults)
@@ -128,6 +138,10 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
 
 cli.command('products',  () => {
     importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit)
+});
+
+cli.command('clear',  () => {
+    recreateTempIndex()
 });
 
 cli.command('categories',  () => { 

@@ -55,9 +55,9 @@ function mapElements(result, elements, locale = null) {
     for(let attr of elements) {
         if(['multiselect', 'input', 'wysiwyg', 'numeric'].indexOf(attr.type) >= 0 && attr.value && (locale === null || attr.language == locale)) {
             subpromises.push(mapToVS(attr.name, attr.type, Array.isArray(attr.value) ? attr.value.join(', ') : attr.value).then((mappedValue) => {
-                console.log(` - attr ${attr.name} values: ${result.id} to ${attr.value}`)
+                console.debug(` - attr ${attr.name} values: ${result.id} to ${attr.value}`)
                 result[attr.name] = mappedValue
-                console.log(` - vs attr ${attr.name} values: ${result.id} to ${result[attr.name]}`)
+                console.debug(` - vs attr ${attr.name} values: ${result.id} to ${result[attr.name]}`)
             }))
         }
     } 
