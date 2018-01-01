@@ -32,16 +32,18 @@ module.exports = class {
             let size = elements.find((elem) => elem.name === 'size')
 
             let localizedFields = elements.find((itm)=> { return itm.name === 'localizedfields'})
+            
+            let subPromises = []            
 
             if(size && size.value)
-                convertedObject.size = attribute.mapToVS('size', 'select', size.value)
+                subPromises.push(attribute.mapToVS('size', 'select', size.value).then((mappedValue) => {
+                    convertedObject.size = mappedValue                    
+                }))
             
             if(color && color.value)
-                convertedObject.color = attribute.mapToVS('color', 'select', Array.isArray(color.value) ? color.value.join(', ') : color.value) // TODO: map to Magento attribute IDs?
-
-            // TODO: map product attributes regarding the templates/attributes.json configuration
-            //console.log(pimcoreObjectData)
-            let subPromises = []
+                subPromises.push(attribute.mapToVS('color', 'select', Array.isArray(color.value) ? color.value.join(', ') : color.value).then((mappedValue) => {
+                    convertedObject.color = mappedValue                    
+                }))
 
             let imagePromises = []
             if(images && this.config.pimcore.downloadImages) {
@@ -58,10 +60,10 @@ module.exports = class {
                                         convertedObject.image = jsonResult.relativePath
                                         console.debug('Image set to ', convertedObject.image)
                                     }
-                            } catch (err) {
-                                console.log('ASSET JSON', jsonResult)
-                                console.error(err)
-                            }
+                                } catch (err) {
+                                    console.log('ASSET OUTPUT', downloaderResult.stdout)
+                                    console.error(err)
+                                }
                         }
                         imgResolve()
                     }))

@@ -56,41 +56,40 @@ module.exports = class {
                         result.id = descriptor.id
                         result.sku = descriptor.id
 
-                        attribute.mapElements(result, elements)
-                        attribute.mapElements(result, localizedFields, this.config.pimcore.locale)
+                        Promise.all([ attribute.mapElements(result, elements), attribute.mapElements(result, localizedFields, this.config.pimcore.locale) ]).then((elementResults) => {
+                            Object.keys(entityConfig.map).map((srcField) => {
+                                const dstField = entityConfig.map[srcField]
+                                const dstValue = localizedFields.find((lf) => { return lf.name === dstField && lf.language === locale})
 
-                        Object.keys(entityConfig.map).map((srcField) => {
-                            const dstField = entityConfig.map[srcField]
-                            const dstValue = localizedFields.find((lf) => { return lf.name === dstField && lf.language === locale})
-
-                            if(!dstValue) {
-                                console.error('Cannot find the value for ', dstField, locale)
-                            } else {
-                                result[srcField] = dstValue.type === 'numeric' ? parseFloat(dstValue.value) : dstValue.value
-                            }
-                        })
-                        
-                        promiseLimit.serial(subpromises).then((childrenResults) => {
-                            if(this.customImporter)
-                            {
-                                this.customImporter.single(objectData, result, childrenResults, level, parent_id).then((resp) => {
-                                    if (childrenResults.length > 0)
-                                    {
-                                        childrenResults.push(resp)
-                                        resolve(childrenResults)
-                                    } else resolve(resp)
-                                }).catch((reason) => { console.error(reason) })
-                            } else {
-                                if (childrenResults.length > 0)
-                                {                        
-                                    childrenResults.push({ dst: result, src: objectData })
-                                    resolve(childrenResults)
+                                if(!dstValue) {
+                                    console.error('Cannot find the value for ', dstField, locale)
                                 } else {
-                                    resolve({ dst: result, src: objectData })
+                                    result[srcField] = dstValue.type === 'numeric' ? parseFloat(dstValue.value) : dstValue.value
                                 }
-                                
-                            }
-                        }).catch((reason) => { console.error(reason) })
+                            })
+                            
+                            promiseLimit.serial(subpromises).then((childrenResults) => {
+                                if(this.customImporter)
+                                {
+                                    this.customImporter.single(objectData, result, childrenResults, level, parent_id).then((resp) => {
+                                        if (childrenResults.length > 0)
+                                        {
+                                            childrenResults.push(resp)
+                                            resolve(childrenResults)
+                                        } else resolve(resp)
+                                    }).catch((reason) => { console.error(reason) })
+                                } else {
+                                    if (childrenResults.length > 0)
+                                    {                        
+                                        childrenResults.push({ dst: result, src: objectData })
+                                        resolve(childrenResults)
+                                    } else {
+                                        resolve({ dst: result, src: objectData })
+                                    }
+                                    
+                                }
+                            }).catch((reason) => { console.error(reason) })
+                        }).catch((reason) => { console.error(reason)})
                     }).catch((reason) => { console.error(reason) })
                 } else {
                     console.error('No Data for ', descriptor.id)
