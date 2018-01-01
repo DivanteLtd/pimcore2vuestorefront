@@ -11,6 +11,9 @@ const attribute = require('./lib/attribute')
 const promiseLimit = require('promise-limit')
 const limit = promiseLimit(3) // limit N promises to be executed at time
 const promise = require('./lib/promise') // right now we're using serial execution because of recursion stack issues
+const path = require('path')
+const shell = require('shelljs')
+const fs = require('fs')
 
 const { spawn } = require('child_process');
 
@@ -133,7 +136,28 @@ cli.command('categories',  () => {
         let fltResults = _.flattenDeep(results)
         storeResults(fltResults, 'category')
      })});
-  
+
+/**
+ * Download asset and return the meta data as a JSON 
+ */
+cli.command('asset', () => {
+    if(!cli.options.id) {
+        console.log(JSON.stringify({ status: -1, message: 'Please provide asset Id'}))
+        process.exit(-1)
+    }
+    api.get(`asset/id/${cli.options.id}`).end((resp) => {
+        if(resp.body && resp.body.data) {
+            const imageName =  resp.body.data.filename
+            const imageRelativePath = resp.body.data.path
+            const imageAbsolutePath = path.join(config.pimcore.assetsPath, imageRelativePath, imageName)
+            
+            shell.mkdir('-p', path.join(config.pimcore.assetsPath, imageRelativePath))
+            fs.writeFileSync(imageAbsolutePath, Buffer.from(resp.body.data.data, 'base64'))
+            console.log(JSON.stringify({ status: 0, message: 'Image downloaded!', absolutePath: imageAbsolutePath, relativePath: path.join(imageRelativePath, imageName) }))
+        }
+    })    
+})
+
 cli.on('notfound', (action) => {
   console.error('I don\'t know how to: ' + action)
   process.exit(1)
@@ -146,7 +170,7 @@ process.on('unhandledRejection', (reason, p) => {
 });
 
 process.on('uncaughtException', function (exception) {
-    console.log(exception); // to see your exception details in the console
+    console.errorlog(exception); // to see your exception details in the console
     // if you are on production, maybe you can send the exception details to your
     // email as well ?
 });

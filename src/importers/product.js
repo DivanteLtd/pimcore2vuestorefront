@@ -49,19 +49,21 @@ module.exports = class {
                 images.value.map((imgDescr) => {
                     let imgId = imgDescr.value[0].value
                     imagePromises.push(new Promise((imgResolve, imgReject) => {
-                        this.api.get(`asset/id/${imgId}`).end((resp) => {
-                            if(resp.body && resp.body.data) {
-                                const imageName =  resp.body.data.filename
-                                const imageRelativePath = resp.body.data.path
-                                const imageAbsolutePath = path.join(this.config.pimcore.assetsPath, imageRelativePath, imageName)
-                                
-                                shell.mkdir('-p', path.join(this.config.pimcore.assetsPath, imageRelativePath))
-                                fs.writeFileSync(imageAbsolutePath, Buffer.from(resp.body.data.data, 'base64'))
-                                console.debug(`File ${imageName} stored to ${imageAbsolutePath}`)
-                                convertedObject.image = path.join(imageRelativePath, imageName)
-                                imgResolve()
+                        shell.cd(path.join(__dirname, '../'))
+                        let downloaderResult = shell.exec(`node index.js asset --id=${imgId}`, { silent: true })
+                        if (downloaderResult) {
+                            try {
+                                let jsonResult = JSON.parse(_.trim(downloaderResult.stdout))
+                                    if(jsonResult && jsonResult.relativePath) {
+                                        convertedObject.image = jsonResult.relativePath
+                                        console.debug('Image set to ', convertedObject.image)
+                                    }
+                            } catch (err) {
+                                console.log('ASSET JSON', jsonResult)
+                                console.error(err)
                             }
-                        })
+                        }
+                        imgResolve()
                     }))
                 })
                 console.log('Downloading binary assets for ', convertedObject.id)
