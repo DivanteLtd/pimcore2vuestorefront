@@ -45,6 +45,18 @@ cli.option({ name: 'switchPage'
 , type: Boolean
 })
 
+cli.option({ name: 'partitions'
+, alias: 't'
+, default: 20
+, type: Boolean
+})
+
+cli.option({ name: 'runSerial'
+, alias: 'o'
+, default: false
+, type: Boolean
+})
+
 function recreateTempIndex() {
     return client.indices.delete({
         index: config.elasticsearch.indexName + '_temp'
@@ -103,13 +115,17 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
         let queue = []
         let index = 0
         for(let objDescriptor of resp.body.data) {
-            queue.push(() => importer.single(objDescriptor).then((singleResults) => {
+            let promise = importer.single(objDescriptor).then((singleResults) => {
                 storeResults(singleResults, entityType)
                 console.log('* Record done for ', objDescriptor.id, index, count)
                 index++
-            }))
+            })
+            if(cli.params.runSerial)
+                queue.push(() => promise)
+            else
+                queue.push(promise)
         }
-        promise.serial(queue).then((results) => {
+        let resultParser = (results) => {
             console.log('** Page done ', offset, resp.body.total)
             
             if(resp.body.total === count)
@@ -125,7 +141,11 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
                     return importListOf(entityType, importer, config, api, offset += count, count) 
                 }
             }
-        }).catch((reason) => { console.error(reason) })
+        }
+        if(cli.params.runSerial)
+            promise.serial(queue).then(resultParser).catch((reason) => { console.error(reason) })
+        else 
+            Promise.all(queue).then(resultParser).catch((reason) => { console.error(reason) })
     })
 }
 // TODO: 
@@ -139,6 +159,16 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
 cli.command('products',  () => {
     importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit)
 });
+
+cli.command('productsMultiProcess',  () => {
+    for(let i = 0; i < cli.options.partitions; i++) { // TODO: support for dynamic count of products etc
+        shell.exec(`node index.js products --offset=${i*cli.options.limit} --limit=${cli.options.limit} --switchPage=false > ../var/log/products_${i}.txt`, (code, stdout, stderr) => {
+            console.log('Exit code:', code);
+            console.log('Program stderr:', stderr);
+          })
+    }
+});
+
 
 cli.command('clear',  () => {
     recreateTempIndex()
@@ -184,7 +214,7 @@ process.on('unhandledRejection', (reason, p) => {
 });
 
 process.on('uncaughtException', function (exception) {
-    console.errorlog(exception); // to see your exception details in the console
+    console.error(exception); // to see your exception details in the console
     // if you are on production, maybe you can send the exception details to your
     // email as well ?
 });

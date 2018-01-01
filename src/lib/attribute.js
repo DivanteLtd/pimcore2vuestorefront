@@ -1,9 +1,12 @@
 const fs = require('fs')
 const path = require('path')
 const memored = require('memored'); // TODO: interprocess cache - can be used for synchronizing the attributes between processes
+const lockFile = require('lockfile')
+const attrFile = path.join(__dirname, '../../var/attributes.json')
+const attrLockFile = path.join(__dirname, '../../var/attributes.json.lock')
+const jsonFile = require('jsonfile')
 
 let attrHash = {}
-let maxAttrId = 1 // used for attr ids
 
 exports.getMap = () => {
     return attrHash
@@ -12,8 +15,21 @@ exports.getMap = () => {
 
 function mapToVS (attributeCode, attributeType, attributeValue) {
     return new Promise((resolve,reject) => {
+
+        console.debug('Locking attributes file mutex')
+        lockFile.lockSync(attrLockFile) // TODO: lock attributes per attribute not global lock - BUT then we need to ensure the attribute_id to be incremental
+        try {
+            attrHash = jsonFile.readFileSync(attrFile)
+            console.debug('Attributes hash loaded', attrHash)
+        } catch (err) {
+            attrHash = {}
+            console.log('Wrong attributes file format ', err.message)
+        }
+
+
         let attr = attrHash[attributeCode]
         if (! attr) {
+            let maxAttrId = Object.keys(attrHash).length + 1
             attr = attributeTemplate(attributeCode, attributeType)
             attr.id = maxAttrId
             attr.attribute_id = maxAttrId
@@ -36,13 +52,22 @@ function mapToVS (attributeCode, attributeType, attributeValue) {
                     label: attributeValue,
                     value: optIndex
                 })
+                jsonFile.writeFileSync(attrFile, attrHash, {spaces: 2})
+                lockFile.unlockSync(attrLockFile)
+                console.debug('Attributes file has been written and unlocked')
                 resolve(optIndex)
             } else {
+                jsonFile.writeFileSync(attrFile, attrHash, {spaces: 2})
+                lockFile.unlockSync(attrLockFile)
+                console.debug('Attributes file has been written and unlocked')
                 resolve(existingOption.value) // non select attrs
             }
 
 
         } else {
+            jsonFile.writeFileSync(attrFile, attrHash, {spaces: 2})
+            lockFile.unlockSync(attrLockFile)
+            console.debug('Attributes file has been written and unlocked')
             resolve(attributeValue)
             // we're fine here for decimal and varchar attributes
         }
