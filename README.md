@@ -29,7 +29,12 @@ Please prepare the following information required by the installer:
 - local Elastic Search installation data (index name + URL); please do [install vue-storefront](https://github.com/DivanteLtd/vue-storefront/blob/master/doc/Installing%20on%20Linux%20and%20MacOS.md) to have docker based Elastic Search and redis ready to go!
 - ID of the root category (if you're using Pimocore demo's data set: https://github.com/pimcore/demo-ecommerce - it's: 11148)
 
+![Setup process](doc/setup.png)
+
 **If the setup process went fine, the import process should have started automatically.**
+
+![Setup process went successfully](doc/setup-success.png)
+
 
 # Manual commands
 The bridge works on temporary, versioned ES indexes. You decide when the index should be published (when all data objects are properly set).
