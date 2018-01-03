@@ -3,9 +3,7 @@ This projects bring You the Pimcore eCommerce Framework support as a backend pla
 
 Vue Storefront is a standalone PWA storefront for your eCommerce, possible to connect with any eCommerce backend (eg. Magento, Pimcore, Prestashop or Shopware) through the API.
 
-<div align="center">
 [![See how it works!](doc/vs-video.png)](https://www.youtube.com/watch?v=L4K-mq9JoaQ)
-</div>
 
 Sign up for a demo at https://vuestorefront.io/ (Vue Storefront integrated with Pimcore OR Magento2).
 
