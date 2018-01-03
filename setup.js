@@ -70,9 +70,10 @@ class Pimcore extends Abstract {
         config.pimcore.url = this.answers.pimcoreUrl
         config.pimcore.assetsPath = this.answers.assetsPath
         config.pimcore.apiKey = this.answers.apiKey
+        config.pimcore.rootCategoryId = parseInt(this.answers.rootCategoryId)
         config.pimcore.locale = this.answers.locale
         config.pimcore.productClass = Object.assign(config.pimcore.productClass, pimcoreClassFinder(this.answers.productClass))
-        config.pimcore.categoryClass = pimcoreClassFinder(this.answers.categoryClass)
+        config.pimcore.categoryClass = Object.assign(config.pimcore.categoryClass, pimcoreClassFinder(this.answers.categoryClass))
         
         jsonFile.writeFileSync(TARGET_CONFIG_FILE, config, {spaces: 2})
       } catch (e) {
@@ -93,8 +94,28 @@ class Pimcore extends Abstract {
     return new Promise((resolve, reject) => {
       Message.info('Starting Pimcore inporter ...')
 
-      if (shell.exec(`nohup npm run importer >> ${Abstract.logStream} 2>&1 &`).code !== 0) {
-        reject('Can\'t start storefront server.', GENERAL_LOG_FILE)
+      let lastExecResult = null
+      shell.cd('src')
+      if (shell.exec(`node index.js new`).code !== 0) {
+        reject('Can\'t create elasticsearch index.')
+        resolve(answers)
+      }
+      if (lastExecResult = shell.exec(`node index.js taxrules`) && lastExecResult.code !== 0) {
+        reject('Can\'t import the taxrules')
+        resolve(answers)
+      }      
+      if (lastExecResult = shell.exec(`node index.js categories`) && lastExecResult.code !== 0) {
+        reject('Can\'t import the categories')
+        resolve(answers)
+      }
+      if (lastExecResult = shell.exec(`node index.js products`) && lastExecResult.code !== 0) {
+        reject('Can\'t import the products')
+        resolve(answers)
+      }
+
+      if (lastExecResult = shell.exec(`node index.js publish`) && lastExecResult.code !== 0) {
+        reject('Can\'t publish the index')
+        resolve(answers)
       }
 
       resolve(answers)
@@ -295,7 +316,7 @@ let questions = [
     type: 'input',
     name: 'elasticsearchIndexName',
     message: 'Please provide the Elastic Search index name for vue-storefront',
-    default: 'vue_storefront_catalog',
+    default: 'vue_storefront_pimcore',
     when: function (answers) {
       return true
     },
@@ -303,6 +324,18 @@ let questions = [
       return true
     }
   },
+  {
+    type: 'input',
+    name: 'rootCategoryId',
+    message: 'Please the root product category ID of Pimcore',
+    default: '11148',
+    when: function (answers) {
+      return true
+    },
+    validate: function (value) {
+      return (Number.isInteger(parseInt(value)))
+    }
+  },  
   {
     type: 'input',
     name: 'assetsPath',
@@ -357,6 +390,11 @@ let questions = [
     }
   },  
 ]
+
+process.on('unhandledRejection', (reason, p) => {
+  console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+   // application specific logging, throwing an error, or other logic here
+});
 
 /**
  * Predefine class static variables

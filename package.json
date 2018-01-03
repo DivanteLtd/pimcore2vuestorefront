@@ -7,6 +7,7 @@
     "babel-cli": "^6.26.0",
     "command-exists": "^1.2.2",
     "command-router": "^1.0.1",
+    "elasticdump": "^3.3.1",
     "elasticsearch": "^14.0.0",
     "empty-dir": "^0.2.1",
     "fs-exists-sync": "^0.1.0",
@@ -28,7 +29,9 @@
   "devDependencies": {},
   "scripts": {
     "start": "babel-node setup.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "restore": "node node_modules/elasticdump/bin/elasticdump --input=var/catalog.json --output=http://localhost:9200/vue_storefront_pimcore",
+    "dump": "node node_modules/elasticdump/bin/elasticdump --output=var/catalog.json --input=http://localhost:9200/vue_storefront_pimcore"    
   },
   "repository": {
     "type": "git",

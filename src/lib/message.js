@@ -23,7 +23,7 @@ class Message {
      * @param text
      * @param logFile
      */
-    static error (text, logFile = INSTALL_LOG_FILE) {
+    static error (text, logFile = process.stderr) {
       text = Array.isArray(text) ? text : [text]
   
       // show trace if exception occurred
@@ -32,10 +32,6 @@ class Message {
       }
   
       let logDetailsInfo = `Please check log file for details: ${logFile}`
-  
-      if (!Abstract.logsWereCreated) {
-        logDetailsInfo = 'Try to fix problem with logs to see the error details.'
-      }
   
       message([
         'ERROR',

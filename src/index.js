@@ -14,6 +14,12 @@ const promise = require('./lib/promise') // right now we're using serial executi
 const path = require('path')
 const shell = require('shelljs')
 const fs = require('fs')
+const jsonFile = require('jsonfile')
+
+
+let INDEX_VERSION = 1
+let INDEX_META_DATA
+const INDEX_META_PATH = path.join(__dirname, '../var/indexMetadata.json')
 
 const { spawn } = require('child_process');
 
@@ -35,7 +41,7 @@ cli.option({ name: 'offset'
 })
 cli.option({ name: 'limit'
 , alias: 'l'
-, default: 10
+, default: 25
 , type: Number
 })
 
@@ -57,15 +63,67 @@ cli.option({ name: 'runSerial'
 , type: Boolean
 })
 
+function readIndexMeta() {
+    let indexMeta = { version: 0, created: new Date(), updated: new Date() }
+
+    try {
+        indexMeta = jsonFile.readFileSync(INDEX_META_PATH)
+    } catch (err){
+        console.log('Seems like first time run!', err.message)
+    }
+    return indexMeta
+}
+
 function recreateTempIndex() {
-    return client.indices.delete({
-        index: config.elasticsearch.indexName + '_temp'
-    }).then((result) => {
-        console.log(result)
-        client.indices.create({ index: config.elasticsearch.indexName + '_temp' }).then(result=>{
-            console.log(result)
+
+    let indexMeta = readIndexMeta()
+
+    try { 
+        indexMeta.version ++
+        INDEX_VERSION = indexMeta.version
+        indexMeta.updated = new Date()
+        jsonFile.writeFileSync(INDEX_META_PATH, indexMeta)
+    } catch (err) {
+        console.error(err)
+    }
+
+    let step2 = () => { 
+        client.indices.create({ index: `${config.elasticsearch.indexName}_${INDEX_VERSION}` }).then(result=>{
+            console.log('Index Created', result)
+            console.log('** NEW INDEX VERSION', INDEX_VERSION, INDEX_META_DATA.created)
         })
-    })    
+    }
+
+
+    return client.indices.delete({
+        index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`
+    }).then((result) => {
+        console.log('Index deleted', result)
+        step2()
+    }).catch((err) => {
+        console.log('Index does not exst')
+        step2()
+    })
+}
+
+function publishTempIndex() {
+    let step2 = () => { 
+        client.indices.putAlias({ index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`, name: config.elasticsearch.indexName }).then(result=>{
+            console.log('Index alias created', result)
+        })
+    }
+
+
+    return client.indices.deleteAlias({
+        index: `${config.elasticsearch.indexName}_${INDEX_VERSION-1}`,
+        name: config.elasticsearch.indexName 
+    }).then((result) => {
+        console.log('Public index alias deleted', result)
+        step2()
+    }).catch((err) => {
+        console.log('Public index alias does not exists', err.message)
+        step2()
+    })  
 }
 
 function storeResults(singleResults, entityType) {
@@ -74,7 +132,7 @@ function storeResults(singleResults, entityType) {
 
     fltResults.map((ent) => {
         client.index({
-            index: config.elasticsearch.indexName + '_temp',
+            index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`,
             type: entityType,
             id: ent.dst.id,
             body: ent.dst
@@ -82,7 +140,7 @@ function storeResults(singleResults, entityType) {
     })
     Object.values(attributes).map((attr) => {
         client.index({
-            index: config.elasticsearch.indexName + '_temp',
+            index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`,
             type: 'attribute',
             id: attr.id,
             body: attr
@@ -96,68 +154,99 @@ function storeResults(singleResults, entityType) {
  * @param {String} entityType 
  * @param {Object} importer 
  */
-function importListOf(entityType, importer, config, api, offset = 0, count = 100) {
-    let entityConfig = config.pimcore[`${entityType}Class`]
-    if (!entityConfig) {
-        throw new Error(`No Pimcore class configuration for ${entityType}`)
-    }
+function importListOf(entityType, importer, config, api, offset = 0, count = 100, recursive = true) {
 
-    const query = { // TODO: add support for `limit` and `offset` paramters
-        objectClass: entityConfig.name,
-        offset: offset,
-        limit: count
-    }
-
-    let generalQueue = []
-    console.log('*** Getting objects list for', query)
-    api.get('object-list').query(query).end((resp) => {
-        
-        let queue = []
-        let index = 0
-        for(let objDescriptor of resp.body.data) {
-            let promise = importer.single(objDescriptor).then((singleResults) => {
-                storeResults(singleResults, entityType)
-                console.log('* Record done for ', objDescriptor.id, index, count)
-                index++
-            })
-            if(cli.params.runSerial)
-                queue.push(() => promise)
-            else
-                queue.push(promise)
+    return new Promise((resolve, reject) => {
+        let entityConfig = config.pimcore[`${entityType}Class`]
+        if (!entityConfig) {
+            throw new Error(`No Pimcore class configuration for ${entityType}`)
         }
-        let resultParser = (results) => {
-            console.log('** Page done ', offset, resp.body.total)
-            
-            if(resp.body.total === count)
-            {
-                try {
-                    global.gc();
-                  } catch (e) {
-                    console.log("WARNING: You can run program with 'node --expose-gc index.js' or 'npm start'");
-                  }
 
-                if(cli.options.switchPage) {
-                    console.log('*** Switching page!')
-                    return importListOf(entityType, importer, config, api, offset += count, count) 
+        const query = { // TODO: add support for `limit` and `offset` paramters
+            objectClass: entityConfig.name,
+            offset: offset,
+            limit: count
+        }
+
+        let generalQueue = []
+        console.log('*** Getting objects list for', query)
+        api.get('object-list').query(query).end((resp) => {
+            
+            let queue = []
+            let index = 0
+            for(let objDescriptor of resp.body.data) {
+                let promise = importer.single(objDescriptor).then((singleResults) => {
+                    storeResults(singleResults, entityType)
+                    console.log('* Record done for ', objDescriptor.id, index, count)
+                    index++
+                })
+                if(cli.params.runSerial)
+                    queue.push(() => promise)
+                else
+                    queue.push(promise)
+            }
+            let resultParser = (results) => {
+                console.log('** Page done ', offset, resp.body.total)
+                
+                if(resp.body.total === count)
+                {
+                    try {
+                        global.gc();
+                    } catch (e) {
+                        console.log("WARNING: You can run program with 'node --expose-gc index.js' or 'npm start'");
+                    }
+
+                    if(recursive) {
+                        console.log('*** Switching page!')
+                        return importListOf(entityType, importer, config, api, offset += count, count) 
+                    } else {
+                        return {
+                            total: resp.body.total,
+                            count: count,
+                            offset: offset
+                        }
+                    }
                 }
             }
-        }
-        if(cli.params.runSerial)
-            promise.serial(queue).then(resultParser).catch((reason) => { console.error(reason) })
-        else 
-            Promise.all(queue).then(resultParser).catch((reason) => { console.error(reason) })
+            if(cli.params.runSerial)
+                promise.serial(queue).then(resultParser).then((res) => resolve(res)).catch((reason) => { console.error(reason); reject() })
+            else 
+                Promise.all(queue).then(resultParser).then((res) => resolve(res)).catch((reason) => { console.error(reason); reject() })
+        })
     })
 }
 // TODO: 
 //  1. Add taxrules importer
 //  2. Images server
 //  3. Add index emptying / temp index creation and aliases
-//  4. Add root category selector (as numeric value) to the setup process 
 //  5. Add styles for color attributes like "white, black" etc 
-// EXTRA: Interprocess cache for attributes
+// TODO: ADD PAGE SWITCHING USING SHELL COMMAND
 
 cli.command('products',  () => {
-    importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit)
+
+   importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit, recursive = false).then((result) => 
+   {
+    if(cli.options.switchPage) {
+            if(result && result.count === result.total) // run the next instance
+            {
+                shell.exec(`node index.js products --switchPage=true --offset=${result.offset+result.count}`)
+            }
+        }
+    }).catch(err => {
+        console.error(err)
+    })
+})    
+
+cli.command('taxrules',  () => {
+    let taxRules = jsonFile.readFileSync('./importers/templates/taxrules.json')
+    for(let taxRule of taxRules) {
+        client.index({
+            index: `${config.elasticsearch.indexName}_${INDEX_VERSION}`,
+            type: 'taxrule',
+            id: taxRule.id,
+            body: taxRule
+        })             
+    }
 });
 
 cli.command('productsMultiProcess',  () => {
@@ -170,9 +259,15 @@ cli.command('productsMultiProcess',  () => {
 });
 
 
-cli.command('clear',  () => {
+cli.command('new',  () => {
     recreateTempIndex()
 });
+
+
+cli.command('publish',  () => {
+    publishTempIndex()
+});
+
 
 cli.command('categories',  () => { 
     let importer = new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
@@ -186,7 +281,7 @@ cli.command('categories',  () => {
  */
 cli.command('asset', () => {
     if(!cli.options.id) {
-        console.log(JSON.stringify({ status: -1, message: 'Please provide asset Id'}))
+        console.log(JSON.stringify({ status: -1, message: 'Please provide asset Id' }))
         process.exit(-1)
     }
     api.get(`asset/id/${cli.options.id}`).end((resp) => {
@@ -219,6 +314,11 @@ process.on('uncaughtException', function (exception) {
     // email as well ?
 });
   
+
+INDEX_META_DATA = readIndexMeta()
+INDEX_VERSION = INDEX_META_DATA.version
+
+console.log('** CURRENT INDEX VERSION', INDEX_VERSION, INDEX_META_DATA.created)
  
   // RUN
 cli.parse(process.argv);
@@ -235,9 +335,6 @@ cli.command('testcategory',  () => {
         console.log('ATTRIBUTES', attribute.getMap())
         console.log('CO', obj.dst.configurable_options)
      }).catch((reason) => { console.error(reason) })
-    // TODO: Tax Rules by template (taxrules.json)
-    // TODO: Search index aliasing (temp indexes)
-    // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
  });
  
 
