@@ -63,6 +63,11 @@ cli.option({ name: 'runSerial'
 , type: Boolean
 })
 
+function showWelcomeMsg() {
+    console.log('** CURRENT INDEX VERSION', INDEX_VERSION, INDEX_META_DATA.created)
+}
+
+
 function readIndexMeta() {
     let indexMeta = { version: 0, created: new Date(), updated: new Date() }
 
@@ -223,6 +228,7 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
 // TODO: ADD PAGE SWITCHING USING SHELL COMMAND
 
 cli.command('products',  () => {
+   showWelcomeMsg()
 
    importListOf('product', new BasicImporter('product', new ProductImpoter(config, api, client), config, api, client), config, api, offset = cli.options.offset, count = cli.options.limit, recursive = false).then((result) => 
    {
@@ -238,6 +244,7 @@ cli.command('products',  () => {
 })    
 
 cli.command('taxrules',  () => {
+    showWelcomeMsg()
     let taxRules = jsonFile.readFileSync('./importers/templates/taxrules.json')
     for(let taxRule of taxRules) {
         client.index({
@@ -250,6 +257,7 @@ cli.command('taxrules',  () => {
 });
 
 cli.command('productsMultiProcess',  () => {
+    showWelcomeMsg()
     for(let i = 0; i < cli.options.partitions; i++) { // TODO: support for dynamic count of products etc
         shell.exec(`node index.js products --offset=${i*cli.options.limit} --limit=${cli.options.limit} --switchPage=false > ../var/log/products_${i}.txt`, (code, stdout, stderr) => {
             console.log('Exit code:', code);
@@ -260,16 +268,19 @@ cli.command('productsMultiProcess',  () => {
 
 
 cli.command('new',  () => {
+    showWelcomeMsg()
     recreateTempIndex()
 });
 
 
 cli.command('publish',  () => {
+    showWelcomeMsg()
     publishTempIndex()
 });
 
 
 cli.command('categories',  () => { 
+    showWelcomeMsg()
     let importer = new BasicImporter('category', new CategoryImpoter(config, api, client), config, api, client) // ProductImporter can be switched to your custom data mapper of choice
     importer.single({ id: config.pimcore.rootCategoryId }, level = 1, parent_id = 1).then((results) => {
         let fltResults = _.flattenDeep(results)
@@ -317,8 +328,6 @@ process.on('uncaughtException', function (exception) {
 
 INDEX_META_DATA = readIndexMeta()
 INDEX_VERSION = INDEX_META_DATA.version
-
-console.log('** CURRENT INDEX VERSION', INDEX_VERSION, INDEX_META_DATA.created)
  
   // RUN
 cli.parse(process.argv);
