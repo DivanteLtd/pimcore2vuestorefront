@@ -221,11 +221,8 @@ function importListOf(entityType, importer, config, api, offset = 0, count = 100
     })
 }
 // TODO: 
-//  1. Add taxrules importer
 //  2. Images server
-//  3. Add index emptying / temp index creation and aliases
 //  5. Add styles for color attributes like "white, black" etc 
-// TODO: ADD PAGE SWITCHING USING SHELL COMMAND
 
 cli.command('products',  () => {
    showWelcomeMsg()
@@ -358,9 +355,6 @@ cli.command('testproduct',  () => {
        console.log('ATTRIBUTES', attribute.getMap())
        console.log('CO', obj.dst.configurable_options)
     }).catch((reason) => { console.error(reason) })
-   // TODO: Tax Rules by template (taxrules.json)
-   // TODO: Search index aliasing (temp indexes)
-   // In general: populate the ES index from scratch, using Magento templates and adding custom Pimcore attributes and categories
 });
   
 // Using a single function to handle multiple signals
