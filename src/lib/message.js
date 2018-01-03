@@ -41,7 +41,7 @@ class Message {
         logDetailsInfo
       ], {borderColor: 'red', marginBottom: 1})
   
-      shell.exit(1)
+      process.exit(1)
     }
   
     /**
