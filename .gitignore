@@ -20,3 +20,6 @@ var/log/products_5.txt
 var/log/products_6.txt
 var/log/products_7.txt
 var/log/products_8.txt
+var/assets/*
+var/log/assets/*
+var/indexMetadata.json
