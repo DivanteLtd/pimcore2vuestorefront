@@ -28,7 +28,7 @@ let client = new es.Client({ // as we're runing tax calculation and other data, 
     host: config.elasticsearch.host,
     log: 'error',
     apiVersion: '5.5',
-    requestTimeout: 50000
+    requestTimeout: 10000
 })
 
 const CommandRouter = require('command-router')
@@ -235,7 +235,7 @@ cli.command('products',  () => {
     if(cli.options.switchPage) {
             if(result && result.count === result.total) // run the next instance
             {
-                let cmd = `node index.js products --switchPage=true --offset=${result.offset+result.count}`
+                let cmd = `node index.js products --switchPage=true --offset=${result.offset+result.count} --limit=${cli.options.limit}`
                 console.log('Starting cubprocess for the next page', cmd)
                 shell.exec(cmd)
             }
