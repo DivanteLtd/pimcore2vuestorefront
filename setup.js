@@ -100,20 +100,20 @@ class Pimcore extends Abstract {
         reject('Can\'t create elasticsearch index.')
         resolve(answers)
       }
-      if (lastExecResult = shell.exec(`node index.js taxrules`) && lastExecResult.code !== 0) {
+      if ((lastExecResult = shell.exec(`node index.js taxrules`)) && lastExecResult.code !== 0) {
         reject('Can\'t import the taxrules')
         resolve(answers)
       }      
-      if (lastExecResult = shell.exec(`node index.js categories`) && lastExecResult.code !== 0) {
+      if ((lastExecResult = shell.exec(`node index.js categories`)) && lastExecResult.code !== 0) {
         reject('Can\'t import the categories')
         resolve(answers)
       }
-      if (lastExecResult = shell.exec(`node index.js products`) && lastExecResult.code !== 0) {
+      if ((lastExecResult = shell.exec(`node index.js products`)) && lastExecResult.code !== 0) {
         reject('Can\'t import the products')
         resolve(answers)
       }
 
-      if (lastExecResult = shell.exec(`node index.js publish`) && lastExecResult.code !== 0) {
+      if ((lastExecResult = shell.exec(`node index.js publish`)) && lastExecResult.code !== 0) {
         reject('Can\'t publish the index')
         resolve(answers)
       }
