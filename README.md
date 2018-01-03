@@ -83,6 +83,9 @@ For demonstration purposes we do support pretty basic elements of eCommerce Fram
 Please visit [Vue Storefront site](http://vuestorefront.io) to check out why it's so cool!
 
 ![Vue Storefront with Pimcore products](doc/vs-pimcore-1.png)
+
+As you may observed, configured products do work perfectly well after imported to Vue Storefront!
+
 ![Vue Storefront with Pimcore products](doc/vs-pimcore-2.png)
 
 # Customization
