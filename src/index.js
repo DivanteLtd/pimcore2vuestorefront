@@ -235,7 +235,7 @@ cli.command('products',  () => {
     if(cli.options.switchPage) {
             if(result && result.count === result.total) // run the next instance
             {
-                let cmd = `node index.js products --switchPage=true --offset=${result.offset+result.count} --limit=${cli.options.limit}`
+                let cmd = `node index.js products --switchPage=true --offset=${result.offset+result.count} --limit=${cli.options.limit} --runSerial=${cli.options.runSerial}`
                 console.log('Starting cubprocess for the next page', cmd)
                 shell.exec(cmd)
             }
