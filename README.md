@@ -1,4 +1,4 @@
-# Vue Storefront - PWA for eCommerce
+# Vue Storefront - Progressive Web App for Pimcore eCommerce Framework
 This projects bring You the Pimcore eCommerce Framework support as a backend platform for [Vue Storefront - first Progressive Web App for e-Commerce](https://github.com/DivanteLtd/vue-storefront). 
 
 Vue Storefront is a standalone PWA storefront for your eCommerce, possible to connect with any eCommerce backend (eg. Magento, Pimcore, Prestashop or Shopware) through the API.
